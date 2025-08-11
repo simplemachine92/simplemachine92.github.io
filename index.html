@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -124,6 +125,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- 
     TASK 6: VISUAL FEEDBACK AND MONITORING SYSTEM
@@ -156,7 +158,10 @@
     <div id="container">
         <div class="header">
             <h1>Memory Leak Reproduction</h1>
-            <p>Reproducing Radix UI Issue #3202 with vanilla JavaScript</p>
+            <p>Reproducing <a href="https://github.com/radix-ui/primitives/issues/3202" target="_blank"
+                    style="color: #fbbf24; text-decoration: underline;">Radix UI Issue #3202</a> with vanilla JavaScript
+            </p>
+            <img src="images/sadyoshi.jpeg" alt="Sadyoshi" width="500">
         </div>
 
         <div class="warning">
@@ -207,10 +212,10 @@
                 // Global arrays to store event handler references (the core leak)
                 this.elementReferences = [];
                 this.eventHandlers = [];
-                
+
                 console.log('ElementFactory initialized for EXTREME event listener memory leaks');
             }
-            
+
             /**
              * Create a DOM element with memory leak patterns
              * Requirements: 1.1, 1.2, 1.3 - Reproduce memory leak behavior
@@ -224,7 +229,7 @@
                 element.className = 'leak-element';
                 element.textContent = `#${elementId}`;
                 element.setAttribute('data-id', elementId);
-                
+
                 // Create MASSIVE data structure for EXTREME event listener memory leaks
                 const massiveEventData = {
                     id: elementId,
@@ -237,7 +242,7 @@
                         timestamp: Date.now(),
                         extraPayload: new Array(800).fill(`extra-event-payload-${elementId}-${i}`)
                     })),
-                    eventData3: new Array(25000).fill(null).map((_, i) => 
+                    eventData3: new Array(25000).fill(null).map((_, i) =>
                         new Array(1200).fill(`massive-event-data-${elementId}-${i}`)
                     ),
                     // HUGE buffers that will be captured in closures
@@ -254,11 +259,11 @@
                         }))
                     }
                 };
-                
+
                 // EXTREME EVENT LISTENER MEMORY LEAK PATTERN
                 // Create MASSIVE numbers of event listeners that capture HUGE data
                 this.attachExtremeEventListeners(element, massiveEventData);
-                
+
                 // Store reference in global array to prevent garbage collection
                 const elementReference = {
                     element: element,
@@ -266,10 +271,10 @@
                     id: elementId,
                     timestamp: Date.now()
                 };
-                
+
                 // Add to global array - this prevents garbage collection
                 this.elementReferences.push(elementReference);
-                
+
                 // Debug logging for first few elements and every 25th element
                 if (elementId <= 5 || elementId % 25 === 0) {
                     console.log(`🔥 EXTREME EVENT LEAK: Created element ${elementId}`);
@@ -278,10 +283,10 @@
                     console.log(`- Estimated memory per element: ~45MB`);
                     console.log(`- Total estimated memory: ~${Math.round(this.elementReferences.length * 45)}MB`);
                 }
-                
+
                 return element;
             }
-            
+
             /**
              * EXTREME EVENT LISTENER MEMORY LEAK PATTERN
              * 
@@ -309,7 +314,7 @@
             attachExtremeEventListeners(element, massiveEventData) {
                 // Create EXTREME numbers of event listeners with MASSIVE data capture
                 // This simulates the original Radix event listener cleanup issue at maximum intensity
-                
+
                 const eventTypes = [
                     'click', 'dblclick', 'mousedown', 'mouseup', 'mouseover', 'mouseout', 'mousemove', 'mouseenter', 'mouseleave',
                     'focus', 'blur', 'focusin', 'focusout', 'keydown', 'keyup', 'keypress',
@@ -322,7 +327,7 @@
                     'animationstart', 'animationend', 'animationiteration',
                     'transitionstart', 'transitionend', 'transitionrun', 'transitioncancel'
                 ];
-                
+
                 // Create event handlers for ALL event types - each captures MASSIVE data
                 eventTypes.forEach((eventType, index) => {
                     // Create unique massive data for each event handler
@@ -346,15 +351,15 @@
                             new Array(1000).fill(`nested-${eventType}-${element.getAttribute('data-id')}-${i}`)
                         )
                     };
-                    
+
                     // Create the event handler that captures ALL this data
                     const eventHandler = ((capturedElement, capturedEventType, capturedData, capturedMassiveData) => {
-                        return function(event) {
+                        return function (event) {
                             // This closure captures MASSIVE amounts of data
                             // Access the data to ensure it stays in memory
                             const dataSize = capturedData.handlerData.length;
                             const massiveDataSize = capturedMassiveData.eventData1.length;
-                            
+
                             // Store additional references on each event (creates more leaks)
                             const eventInfo = {
                                 element: capturedElement,
@@ -365,18 +370,18 @@
                                 // Create more data on each event
                                 eventSpecificData: new Array(1000).fill(`event-${capturedEventType}-${Date.now()}`)
                             };
-                            
+
                             // CRITICAL LEAK: Store in global array
                             this.eventHandlers.push(eventInfo);
-                            
+
                             // Return reference to prevent any cleanup
                             return eventInfo;
                         }.bind(this);
                     })(element, eventType, handlerSpecificData, massiveEventData);
-                    
+
                     // Attach the event listener - this creates the memory leak
                     element.addEventListener(eventType, eventHandler);
-                    
+
                     // Store handler reference to prevent cleanup
                     this.eventHandlers.push({
                         element: element,
@@ -386,11 +391,11 @@
                         massiveEventData: massiveEventData
                     });
                 });
-                
+
                 // RESULT: 50+ event listeners per element, each capturing 45MB+ of data
                 // When element is removed from DOM, ALL listeners remain in memory = EXTREME LEAK
             }
-            
+
             /**
              * TASK 6: ENHANCED COMMENTS - Reference Array Memory Leak Pattern
              * 
@@ -433,7 +438,7 @@
                     // Primary element reference
                     elementRef: element,
                     elementId: elementId,
-                    
+
                     // EXTREME arrays to consume INSANE amounts of memory
                     primaryData: new Array(50000).fill(null).map((_, i) => ({
                         index: i,
@@ -442,10 +447,10 @@
                         // EXTREME nested structure
                         nestedArray: new Array(1000).fill(`nested-${elementId}-${i}`)
                     })),
-                    
+
                     // Secondary large data structure
                     secondaryData: {
-                        buffers: new Array(10).fill(null).map((_, i) => 
+                        buffers: new Array(10).fill(null).map((_, i) =>
                             new Array(500).fill(`buffer-${elementId}-${i}`)
                         ),
                         metadata: {
@@ -456,7 +461,7 @@
                             parent: null // Will be set below
                         }
                     },
-                    
+
                     // EXTREME typed arrays to simulate real-world data
                     typedArrays: {
                         float32Data: new Float32Array(100000).fill(Math.random()),
@@ -466,7 +471,7 @@
                         uint32Data: new Uint32Array(120000).fill(elementId),
                         int16Data: new Int16Array(150000).fill(elementId % 32767)
                     },
-                    
+
                     // DOM-related references that prevent garbage collection
                     domReferences: {
                         element: element,
@@ -477,13 +482,13 @@
                         computedStyles: null // Will be populated when element is in DOM
                     }
                 };
-                
+
                 // Create circular reference to make cleanup harder
                 massiveDataStructure.secondaryData.metadata.parent = massiveDataStructure;
-                
+
                 // TASK 4.2: Store in reference array storage system
                 this.referenceArrayLeaks.push(massiveDataStructure);
-                
+
                 // Create additional detached element references
                 const detachedReference = {
                     originalElement: element,
@@ -500,15 +505,15 @@
                     // Function references that capture the element
                     functionReferences: this.createDetachedFunctionReferences(element, elementId)
                 };
-                
+
                 this.detachedElementReferences.push(detachedReference);
-                
+
                 // TASK 4.3: Add large data structures to each element reference
                 const largeDataStructure = {
                     elementId: elementId,
                     element: element,
                     // Massive string data
-                    stringData: new Array(500).fill(null).map((_, i) => 
+                    stringData: new Array(500).fill(null).map((_, i) =>
                         `large-string-data-${elementId}-${i}-`.repeat(20)
                     ),
                     // Object with many properties
@@ -529,15 +534,15 @@
                         )
                     )
                 };
-                
+
                 this.largeDataStructures.push(largeDataStructure);
-                
+
                 console.log(`Reference array leak created for element ${elementId}`);
                 console.log(`- Reference arrays: ${this.referenceArrayLeaks.length}`);
                 console.log(`- Detached references: ${this.detachedElementReferences.length}`);
                 console.log(`- Large data structures: ${this.largeDataStructures.length}`);
             }
-            
+
             /**
              * TASK 6: ENHANCED COMMENTS - Closure-Based Memory Leak Pattern
              * 
@@ -578,16 +583,16 @@
              */
             createClosureBasedLeak(element, elementId, largeData) {
                 console.log(`Creating closure-based memory leak for element ${elementId}`);
-                
+
                 // TASK 5.1: Create functions that generate closures with large data captures
                 const closureGenerators = this.createClosureGenerators(element, elementId, largeData);
-                
+
                 // TASK 5.2: Attach these closures as event handlers to DOM elements
                 const closureEventHandlers = this.attachClosureEventHandlers(element, elementId, closureGenerators);
-                
+
                 // TASK 5.3: Ensure closures prevent garbage collection of captured data
                 const persistentClosures = this.createPersistentClosures(element, elementId, largeData, closureGenerators);
-                
+
                 // Store all closure-based leak components
                 const closureLeakData = {
                     elementId: elementId,
@@ -601,17 +606,17 @@
                     // Additional large data structures created specifically for closures
                     closureSpecificData: this.createClosureSpecificData(elementId)
                 };
-                
+
                 // Store in closure-based leaks array to prevent garbage collection
                 this.closureBasedLeaks.push(closureLeakData);
-                
+
                 console.log(`Closure-based leak created for element ${elementId}`);
                 console.log(`- Total closure-based leaks: ${this.closureBasedLeaks.length}`);
                 console.log(`- Closure generators: ${closureGenerators.length}`);
                 console.log(`- Closure event handlers: ${closureEventHandlers.length}`);
                 console.log(`- Persistent closures: ${persistentClosures.length}`);
             }
-            
+
             /**
              * Create functions that generate closures with large data captures
              * Part of Task 5: Closure-based memory leak pattern
@@ -623,7 +628,7 @@
              */
             createClosureGenerators(element, elementId, largeData) {
                 const generators = [];
-                
+
                 // Create EXTREME number of closure generators, each capturing INSANE amounts of data
                 for (let i = 0; i < 200; i++) {
                     // Create massive data structure for this closure
@@ -661,7 +666,7 @@
                             ])
                         )
                     };
-                    
+
                     // Create closure generator function that captures all this data
                     const closureGenerator = ((capturedElement, capturedId, capturedData, generatorIndex) => {
                         // This function creates closures that capture the massive data
@@ -727,7 +732,7 @@
                                     };
                                 })(closureType, capturedElement, capturedId, capturedData, generatorIndex);
                             },
-                            
+
                             // Function that creates multiple closures at once
                             generateMultipleClosures: (count) => {
                                 const closures = [];
@@ -754,7 +759,7 @@
                                 }
                                 return closures;
                             },
-                            
+
                             // Access to the captured data
                             getCapturedData: () => capturedData,
                             getElement: () => capturedElement,
@@ -762,16 +767,16 @@
                             getGeneratorIndex: () => generatorIndex
                         };
                     })(element, elementId, massiveClosureData, i);
-                    
+
                     generators.push(closureGenerator);
                 }
-                
+
                 // Store generators to prevent garbage collection
                 this.closureGenerators.push(...generators);
-                
+
                 return generators;
             }
-            
+
             /**
              * Attach closures as event handlers to DOM elements
              * Part of Task 5: Closure-based memory leak pattern
@@ -783,14 +788,14 @@
              */
             attachClosureEventHandlers(element, elementId, closureGenerators) {
                 const eventHandlers = [];
-                
+
                 // Create different types of event handlers using closures
                 const eventTypes = ['click', 'mouseover', 'mouseout', 'focus', 'blur', 'keydown', 'keyup'];
-                
+
                 eventTypes.forEach((eventType, typeIndex) => {
                     // Use closure generators to create event handlers
                     const generator = closureGenerators[typeIndex % closureGenerators.length];
-                    
+
                     // Create closure-based event handler
                     const closureEventHandler = ((capturedGenerator, capturedElement, capturedId, capturedEventType) => {
                         // Large data captured in this event handler closure
@@ -812,19 +817,19 @@
                             floatView: new Float32Array(500).fill(Math.random()),
                             intView: new Int32Array(250).fill(capturedId)
                         };
-                        
+
                         // Return the actual event handler function
-                        return function(event) {
+                        return function (event) {
                             // This function captures all the data above
                             console.log(`Closure event handler triggered: ${capturedEventType} on element ${capturedId}`);
-                            
+
                             // Access captured data to ensure it stays in memory
                             const generatedClosure = capturedGenerator.generateClosure(capturedEventType);
                             const processedData = generatedClosure.processData();
-                            
+
                             // Create additional closures on each event
                             const additionalClosures = capturedGenerator.generateMultipleClosures(5);
-                            
+
                             // Store references to prevent garbage collection
                             eventHandlerData.lastEventData = {
                                 event: event,
@@ -833,7 +838,7 @@
                                 processedData: processedData,
                                 additionalClosures: additionalClosures
                             };
-                            
+
                             // Return data that references everything
                             return {
                                 element: capturedElement,
@@ -844,10 +849,10 @@
                             };
                         };
                     })(generator, element, elementId, eventType);
-                    
+
                     // Attach the event handler to the element
                     element.addEventListener(eventType, closureEventHandler);
-                    
+
                     // Store the handler to prevent garbage collection
                     eventHandlers.push({
                         eventType: eventType,
@@ -857,13 +862,13 @@
                         generator: generator
                     });
                 });
-                
+
                 // Store event handlers to prevent garbage collection
                 this.closureEventHandlers.push(...eventHandlers);
-                
+
                 return eventHandlers;
             }
-            
+
             /**
              * Create persistent closures that prevent garbage collection
              * Part of Task 5: Closure-based memory leak pattern
@@ -876,7 +881,7 @@
              */
             createPersistentClosures(element, elementId, largeData, closureGenerators) {
                 const persistentClosures = [];
-                
+
                 // Create EXTREME number of persistent closures that capture INSANE amounts of data
                 for (let i = 0; i < 500; i++) {
                     // Create massive data structure for this persistent closure
@@ -924,7 +929,7 @@
                             ])
                         )
                     };
-                    
+
                     // Create persistent closure that captures all this data
                     const persistentClosure = ((capturedElement, capturedId, capturedData, capturedGenerators, closureIndex) => {
                         // This closure captures massive amounts of data and prevents garbage collection
@@ -933,7 +938,7 @@
                             getClosureId: () => closureIndex,
                             getElementId: () => capturedId,
                             getElement: () => capturedElement,
-                            
+
                             // Data access functions that keep references alive
                             getAllData: () => {
                                 return {
@@ -945,7 +950,7 @@
                                     timestamp: Date.now()
                                 };
                             },
-                            
+
                             // Function that processes all captured data
                             processAllData: () => {
                                 const processedArrays = capturedData.persistentArrays.map(item => ({
@@ -953,7 +958,7 @@
                                     processed: true,
                                     processingTime: Date.now()
                                 }));
-                                
+
                                 const processedTypedArrays = Object.fromEntries(
                                     Object.entries(capturedData.typedArrays).map(([key, array]) => [
                                         key,
@@ -965,7 +970,7 @@
                                         }
                                     ])
                                 );
-                                
+
                                 return {
                                     element: capturedElement,
                                     elementId: capturedId,
@@ -976,7 +981,7 @@
                                     timestamp: Date.now()
                                 };
                             },
-                            
+
                             // Function that creates additional nested closures
                             createNestedClosures: (count) => {
                                 const nestedClosures = [];
@@ -1006,12 +1011,12 @@
                                             }
                                         };
                                     })(j, capturedElement, capturedData);
-                                    
+
                                     nestedClosures.push(nestedClosure);
                                 }
                                 return nestedClosures;
                             },
-                            
+
                             // Function that uses generators to create more closures
                             useGenerators: () => {
                                 const generatedClosures = [];
@@ -1027,18 +1032,18 @@
                                 });
                                 return generatedClosures;
                             },
-                            
+
                             // Circular reference to prevent cleanup
-                            getSelf: function() { return this; }
+                            getSelf: function () { return this; }
                         };
                     })(element, elementId, persistentData, closureGenerators, i);
-                    
+
                     persistentClosures.push(persistentClosure);
                 }
-                
+
                 return persistentClosures;
             }
-            
+
             /**
              * Create closure-specific large data structures
              * Part of Task 5: Closure-based memory leak pattern
@@ -1050,7 +1055,7 @@
                 return {
                     elementId: elementId,
                     // Large string arrays
-                    stringArrays: new Array(600).fill(null).map((_, i) => 
+                    stringArrays: new Array(600).fill(null).map((_, i) =>
                         new Array(30).fill(`closure-specific-${elementId}-${i}`).join('-')
                     ),
                     // Large object structures
@@ -1086,7 +1091,7 @@
                     }
                 };
             }
-            
+
             /**
              * Create function references that capture detached elements
              * Part of the reference array memory leak pattern
@@ -1097,20 +1102,20 @@
              */
             createDetachedFunctionReferences(element, elementId) {
                 const functionRefs = [];
-                
+
                 // Create EXTREME number of functions that capture the element
                 for (let i = 0; i < 500; i++) {
                     const captureFunction = ((capturedElement, capturedId, index) => {
                         // Large data captured in closure
                         const capturedData = new Array(100).fill(`captured-${capturedId}-${index}`);
-                        
+
                         return {
                             // Function that returns element reference
                             getElement: () => capturedElement,
                             getId: () => capturedId,
                             getIndex: () => index,
                             getData: () => capturedData,
-                            
+
                             // Function that processes element data
                             processElement: () => {
                                 return {
@@ -1122,7 +1127,7 @@
                                     processingResults: new Array(50).fill(`result-${capturedId}-${index}`)
                                 };
                             },
-                            
+
                             // Nested function that also captures references
                             createNestedReference: () => {
                                 return ((nestedElement, nestedData) => {
@@ -1137,13 +1142,13 @@
                             }
                         };
                     })(element, elementId, i);
-                    
+
                     functionRefs.push(captureFunction);
                 }
-                
+
                 return functionRefs;
             }
-            
+
             /**
              * Create additional references to increase memory footprint
              * Requirements: 1.3 - Create closures that capture DOM element references
@@ -1154,7 +1159,7 @@
              */
             createAdditionalReferences(element, elementId) {
                 const references = [];
-                
+
                 // Create multiple closures that capture the element
                 for (let i = 0; i < 10; i++) {
                     const closure = ((capturedElement, capturedId, index) => {
@@ -1174,13 +1179,13 @@
                             }
                         };
                     })(element, elementId, i);
-                    
+
                     references.push(closure);
                 }
-                
+
                 return references;
             }
-            
+
             /**
              * Get statistics about created elements and memory usage
              * @returns {Object} Statistics object
@@ -1192,27 +1197,27 @@
                 const referenceArrayMemory = this.referenceArrayLeaks.length * 2.0; // MB per reference array (larger)
                 const detachedReferenceMemory = this.detachedElementReferences.length * 1.5; // MB per detached ref
                 const largeDataMemory = this.largeDataStructures.length * 1.0; // MB per large data structure
-                
+
                 // Task 5: Closure-based memory leak pattern memory calculations
                 const closureBasedMemory = this.closureBasedLeaks.length * 3.0; // MB per closure-based leak (largest)
                 const closureGeneratorMemory = this.closureGenerators.length * 0.8; // MB per closure generator
                 const closureEventHandlerMemory = this.closureEventHandlers.length * 0.3; // MB per closure event handler
-                
+
                 return {
                     // Original leak patterns (Tasks 1-3)
                     totalElements: this.elementReferences.length,
                     totalEventHandlers: this.eventHandlers.length,
-                    
+
                     // Task 4: Reference array memory leak pattern statistics
                     referenceArrayLeaks: this.referenceArrayLeaks.length,
                     detachedElementReferences: this.detachedElementReferences.length,
                     largeDataStructures: this.largeDataStructures.length,
-                    
+
                     // Task 5: Closure-based memory leak pattern statistics
                     closureBasedLeaks: this.closureBasedLeaks.length,
                     closureGenerators: this.closureGenerators.length,
                     closureEventHandlers: this.closureEventHandlers.length,
-                    
+
                     // Memory usage breakdown
                     memoryBreakdown: {
                         eventListeners: Math.round(eventListenerMemory),
@@ -1224,13 +1229,13 @@
                         closureGenerators: Math.round(closureGeneratorMemory),
                         closureEventHandlers: Math.round(closureEventHandlerMemory)
                     },
-                    
+
                     // Total estimated memory usage
                     estimatedMemoryMB: Math.round(
-                        eventListenerMemory + 
-                        elementReferenceMemory + 
-                        referenceArrayMemory + 
-                        detachedReferenceMemory + 
+                        eventListenerMemory +
+                        elementReferenceMemory +
+                        referenceArrayMemory +
+                        detachedReferenceMemory +
                         largeDataMemory +
                         closureBasedMemory +
                         closureGeneratorMemory +
@@ -1238,7 +1243,7 @@
                     )
                 };
             }
-            
+
             /**
              * Simulate cleanup (but intentionally incomplete to maintain EXTREME event listener leak)
              * This method demonstrates what proper cleanup would look like,
@@ -1246,14 +1251,14 @@
              */
             attemptCleanup() {
                 console.log('🔥 ATTEMPTING CLEANUP (INCOMPLETE BY DESIGN) 🔥');
-                
+
                 // We could remove event listeners here, but we intentionally don't
                 // to demonstrate the EXTREME event listener memory leak pattern
-                
+
                 // We could clear the arrays here, but we intentionally don't
                 // this.elementReferences = [];
                 // this.eventHandlers = [];
-                
+
                 console.log('💀 CLEANUP FAILED - EXTREME EVENT LISTENER LEAKS PERSIST 💀');
                 console.log(`🔥 Still holding ${this.elementReferences.length} element references`);
                 console.log(`🔥 Still holding ${this.eventHandlers.length} event handler references`);
@@ -1306,26 +1311,26 @@
                 this.isRunning = false;
                 this.elementCount = 0;
                 this.intervalId = null;
-                
+
                 // Initialize ElementFactory for creating leaky elements
                 this.elementFactory = new ElementFactory();
-                
+
                 // DOM element references
                 this.startButton = document.getElementById('start');
-                
+
                 // Bind event handlers
                 this.initializeEventHandlers();
-                
+
                 console.log('LeakController initialized with ElementFactory');
             }
-            
+
             /**
              * Initialize event handlers for start button
              */
             initializeEventHandlers() {
                 this.startButton.addEventListener('click', () => this.startLeak());
             }
-            
+
             /**
              * Start the memory leak simulation
              * Requirements: 3.1 - Provide start/stop controls for the memory leak simulation
@@ -1335,15 +1340,15 @@
                     console.warn('Leak is already running');
                     return;
                 }
-                
+
                 console.log('🔥 STARTING EXTREME MEMORY LEAK - PREPARE FOR IMPACT! 🔥');
                 console.log('ElementFactory initialized:', !!this.elementFactory);
                 this.isRunning = true;
-                
+
                 // Disable start button to prevent multiple clicks
                 this.startButton.disabled = true;
                 this.startButton.textContent = 'MEMORY LEAK ACTIVE - BROWSER MAY CRASH';
-                
+
                 // Create elements every 1ms for EXTREME memory leak + multiple elements per tick
                 this.intervalId = setInterval(() => {
                     // Create 5 elements per tick for maximum memory consumption
@@ -1351,13 +1356,13 @@
                         this.createElement();
                     }
                 }, 1);
-                
+
                 console.log('🚀 EXTREME MEMORY LEAK STARTED - 5000 ELEMENTS/SECOND');
                 console.log('⚠️  MONITOR MEMORY USAGE IN DEV TOOLS IMMEDIATELY');
             }
-            
 
-            
+
+
             /**
              * Create elements with extreme memory leak patterns - no visualization
              * Pure memory consumption focused on maximum leak impact
@@ -1365,19 +1370,19 @@
             createElement() {
                 // Increment counter (no display update needed)
                 this.elementCount++;
-                
+
                 // Use ElementFactory to create element with memory leak patterns
                 const element = this.elementFactory.createElement(this.elementCount);
-                
+
                 // Verify element was created
                 if (!element) {
                     console.error('ElementFactory.createElement returned null/undefined');
                     return;
                 }
-                
+
                 // No DOM visualization - just pure memory leak creation
                 // ElementFactory retains all references = MEMORY LEAK
-                
+
                 // Log progress every 100 elements with ElementFactory stats
                 if (this.elementCount % 100 === 0) {
                     const factoryStats = this.elementFactory.getStats();
@@ -1389,9 +1394,9 @@
                     console.log(`Closure-based leaks: ${factoryStats.closureBasedLeaks}`);
                 }
             }
-            
 
-            
+
+
             /**
              * Get current leak statistics for debugging
              */
@@ -1410,22 +1415,22 @@
                 };
             }
         }
-        
+
         // Initialize the leak controller when the page loads
         let leakController;
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             leakController = new LeakController();
-            
+
             // Make leakController available globally for debugging
             window.leakController = leakController;
-            
+
             // Add a test function to verify memory leaks are working
-            window.testMemoryLeak = function() {
+            window.testMemoryLeak = function () {
                 console.log('=== MEMORY LEAK TEST ===');
                 const stats = leakController.getStats();
                 console.log('Controller stats:', stats);
-                
+
                 if (stats.elementCount > 0) {
                     console.log('✅ Elements are being created');
                     console.log('✅ ElementFactory has', stats.elementFactory.totalElements, 'element references');
@@ -1434,14 +1439,15 @@
                 } else {
                     console.log('❌ No elements created yet - click Start Memory Leak button');
                 }
-                
+
                 return stats;
             };
-            
+
             console.log('Memory leak reproduction page loaded');
             console.log('LeakController ready - use leakController.getStats() to check status');
             console.log('Use window.testMemoryLeak() to verify memory leaks are working');
         });
     </script>
 </body>
+
 </html>

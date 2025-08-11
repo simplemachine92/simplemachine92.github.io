@@ -285,7 +285,12 @@
                 this.detachedElementReferences = [];
                 this.largeDataStructures = [];
                 
-                console.log('ElementFactory initialized with reference array leak pattern');
+                // TASK 5: Closure-based memory leak pattern storage
+                this.closureBasedLeaks = [];
+                this.closureGenerators = [];
+                this.closureEventHandlers = [];
+                
+                console.log('ElementFactory initialized with reference array and closure-based leak patterns');
             }
             
             /**
@@ -337,6 +342,10 @@
                 // MEMORY LEAK PATTERN 3: Reference array memory leak pattern (Task 4)
                 // Create element reference storage system with large data structures
                 this.createReferenceArrayLeak(element, elementId, largeData);
+                
+                // MEMORY LEAK PATTERN 4: Closure-based memory leak pattern (Task 5)
+                // Create functions that generate closures with large data captures
+                this.createClosureBasedLeak(element, elementId, largeData);
                 
                 console.log(`ElementFactory: Created element ${elementId} with ${this.elementReferences.length} total references`);
                 
@@ -538,6 +547,530 @@
             }
             
             /**
+             * TASK 5: Implement closure-based memory leak pattern
+             * Requirements: 1.1, 1.2, 1.3 - Create functions that generate closures with large data captures
+             * 
+             * This method implements the closure-based memory leak pattern by:
+             * - Creating functions that generate closures with large data captures
+             * - Attaching these closures as event handlers to DOM elements
+             * - Ensuring closures prevent garbage collection of captured data
+             * 
+             * @param {HTMLElement} element - The DOM element
+             * @param {number} elementId - Element identifier
+             * @param {Object} largeData - Large data structure associated with element
+             */
+            createClosureBasedLeak(element, elementId, largeData) {
+                console.log(`Creating closure-based memory leak for element ${elementId}`);
+                
+                // TASK 5.1: Create functions that generate closures with large data captures
+                const closureGenerators = this.createClosureGenerators(element, elementId, largeData);
+                
+                // TASK 5.2: Attach these closures as event handlers to DOM elements
+                const closureEventHandlers = this.attachClosureEventHandlers(element, elementId, closureGenerators);
+                
+                // TASK 5.3: Ensure closures prevent garbage collection of captured data
+                const persistentClosures = this.createPersistentClosures(element, elementId, largeData, closureGenerators);
+                
+                // Store all closure-based leak components
+                const closureLeakData = {
+                    elementId: elementId,
+                    element: element,
+                    generators: closureGenerators,
+                    eventHandlers: closureEventHandlers,
+                    persistentClosures: persistentClosures,
+                    timestamp: Date.now(),
+                    // Large data captured in the main closure scope
+                    capturedLargeData: largeData,
+                    // Additional large data structures created specifically for closures
+                    closureSpecificData: this.createClosureSpecificData(elementId)
+                };
+                
+                // Store in closure-based leaks array to prevent garbage collection
+                this.closureBasedLeaks.push(closureLeakData);
+                
+                console.log(`Closure-based leak created for element ${elementId}`);
+                console.log(`- Total closure-based leaks: ${this.closureBasedLeaks.length}`);
+                console.log(`- Closure generators: ${closureGenerators.length}`);
+                console.log(`- Closure event handlers: ${closureEventHandlers.length}`);
+                console.log(`- Persistent closures: ${persistentClosures.length}`);
+            }
+            
+            /**
+             * Create functions that generate closures with large data captures
+             * Part of Task 5: Closure-based memory leak pattern
+             * 
+             * @param {HTMLElement} element - The DOM element
+             * @param {number} elementId - Element identifier
+             * @param {Object} largeData - Large data structure
+             * @returns {Array} Array of closure generator functions
+             */
+            createClosureGenerators(element, elementId, largeData) {
+                const generators = [];
+                
+                // Create multiple closure generators, each capturing large amounts of data
+                for (let i = 0; i < 15; i++) {
+                    // Create massive data structure for this closure
+                    const massiveClosureData = {
+                        generatorId: i,
+                        elementId: elementId,
+                        element: element,
+                        largeData: largeData,
+                        // Large arrays specific to this closure
+                        closureArrays: new Array(500).fill(null).map((_, j) => ({
+                            index: j,
+                            data: `closure-generator-${elementId}-${i}-${j}`,
+                            payload: new Array(50).fill(`payload-${elementId}-${i}-${j}`),
+                            timestamp: Date.now()
+                        })),
+                        // Typed arrays for additional memory consumption
+                        typedData: {
+                            float64Array: new Float64Array(200).fill(Math.random() * elementId),
+                            uint32Array: new Uint32Array(300).fill(elementId + i),
+                            int16Array: new Int16Array(400).fill((elementId + i) % 32767)
+                        },
+                        // Nested object structures
+                        nestedStructures: Object.fromEntries(
+                            new Array(100).fill(null).map((_, k) => [
+                                `nested_${elementId}_${i}_${k}`,
+                                {
+                                    value: new Array(20).fill(`nested-value-${elementId}-${i}-${k}`),
+                                    metadata: {
+                                        created: Date.now(),
+                                        elementRef: element,
+                                        generatorIndex: i,
+                                        nestedIndex: k
+                                    }
+                                }
+                            ])
+                        )
+                    };
+                    
+                    // Create closure generator function that captures all this data
+                    const closureGenerator = ((capturedElement, capturedId, capturedData, generatorIndex) => {
+                        // This function creates closures that capture the massive data
+                        return {
+                            // Generator function that creates new closures
+                            generateClosure: (closureType) => {
+                                // Each generated closure captures all the data
+                                return ((type, elem, id, data, genIdx) => {
+                                    return {
+                                        type: type,
+                                        element: elem,
+                                        elementId: id,
+                                        generatorIndex: genIdx,
+                                        capturedData: data,
+                                        // Function that accesses captured data
+                                        accessData: () => {
+                                            return {
+                                                element: elem,
+                                                id: id,
+                                                dataSize: data.closureArrays.length,
+                                                typedDataSize: Object.keys(data.typedData).length,
+                                                nestedStructuresSize: Object.keys(data.nestedStructures).length,
+                                                timestamp: Date.now()
+                                            };
+                                        },
+                                        // Function that processes captured data
+                                        processData: () => {
+                                            const processed = data.closureArrays.map(item => ({
+                                                ...item,
+                                                processed: true,
+                                                processingTime: Date.now()
+                                            }));
+                                            return {
+                                                element: elem,
+                                                processedData: processed,
+                                                processingMetadata: {
+                                                    elementId: id,
+                                                    generatorIndex: genIdx,
+                                                    type: type,
+                                                    timestamp: Date.now()
+                                                }
+                                            };
+                                        },
+                                        // Nested closure that also captures data
+                                        createNestedClosure: () => {
+                                            return ((nestedElem, nestedData, nestedType) => {
+                                                return {
+                                                    element: nestedElem,
+                                                    data: nestedData,
+                                                    type: nestedType,
+                                                    // Even deeper nesting
+                                                    deepNested: ((deepElem, deepData) => {
+                                                        return {
+                                                            element: deepElem,
+                                                            data: deepData,
+                                                            accessDeepData: () => deepData,
+                                                            timestamp: Date.now()
+                                                        };
+                                                    })(nestedElem, nestedData)
+                                                };
+                                            })(elem, data, type);
+                                        }
+                                    };
+                                })(closureType, capturedElement, capturedId, capturedData, generatorIndex);
+                            },
+                            
+                            // Function that creates multiple closures at once
+                            generateMultipleClosures: (count) => {
+                                const closures = [];
+                                for (let j = 0; j < count; j++) {
+                                    closures.push(((idx, elem, data) => {
+                                        return {
+                                            index: idx,
+                                            element: elem,
+                                            data: data,
+                                            // Large function that captures everything
+                                            processAll: () => {
+                                                return {
+                                                    element: elem,
+                                                    data: data,
+                                                    index: idx,
+                                                    processed: data.closureArrays.map(item => item.data),
+                                                    typedProcessed: Object.values(data.typedData),
+                                                    nestedProcessed: Object.entries(data.nestedStructures),
+                                                    timestamp: Date.now()
+                                                };
+                                            }
+                                        };
+                                    })(j, capturedElement, capturedData));
+                                }
+                                return closures;
+                            },
+                            
+                            // Access to the captured data
+                            getCapturedData: () => capturedData,
+                            getElement: () => capturedElement,
+                            getId: () => capturedId,
+                            getGeneratorIndex: () => generatorIndex
+                        };
+                    })(element, elementId, massiveClosureData, i);
+                    
+                    generators.push(closureGenerator);
+                }
+                
+                // Store generators to prevent garbage collection
+                this.closureGenerators.push(...generators);
+                
+                return generators;
+            }
+            
+            /**
+             * Attach closures as event handlers to DOM elements
+             * Part of Task 5: Closure-based memory leak pattern
+             * 
+             * @param {HTMLElement} element - The DOM element
+             * @param {number} elementId - Element identifier
+             * @param {Array} closureGenerators - Array of closure generator functions
+             * @returns {Array} Array of attached event handlers
+             */
+            attachClosureEventHandlers(element, elementId, closureGenerators) {
+                const eventHandlers = [];
+                
+                // Create different types of event handlers using closures
+                const eventTypes = ['click', 'mouseover', 'mouseout', 'focus', 'blur', 'keydown', 'keyup'];
+                
+                eventTypes.forEach((eventType, typeIndex) => {
+                    // Use closure generators to create event handlers
+                    const generator = closureGenerators[typeIndex % closureGenerators.length];
+                    
+                    // Create closure-based event handler
+                    const closureEventHandler = ((capturedGenerator, capturedElement, capturedId, capturedEventType) => {
+                        // Large data captured in this event handler closure
+                        const eventHandlerData = {
+                            eventType: capturedEventType,
+                            elementId: capturedId,
+                            element: capturedElement,
+                            generator: capturedGenerator,
+                            // Large data specific to this event handler
+                            handlerSpecificData: new Array(300).fill(null).map((_, i) => ({
+                                handlerIndex: i,
+                                eventType: capturedEventType,
+                                elementId: capturedId,
+                                data: new Array(30).fill(`handler-data-${capturedId}-${capturedEventType}-${i}`),
+                                timestamp: Date.now()
+                            })),
+                            // Additional large structures
+                            bufferData: new ArrayBuffer(1024 * 10), // 10KB buffer
+                            floatView: new Float32Array(500).fill(Math.random()),
+                            intView: new Int32Array(250).fill(capturedId)
+                        };
+                        
+                        // Return the actual event handler function
+                        return function(event) {
+                            // This function captures all the data above
+                            console.log(`Closure event handler triggered: ${capturedEventType} on element ${capturedId}`);
+                            
+                            // Access captured data to ensure it stays in memory
+                            const generatedClosure = capturedGenerator.generateClosure(capturedEventType);
+                            const processedData = generatedClosure.processData();
+                            
+                            // Create additional closures on each event
+                            const additionalClosures = capturedGenerator.generateMultipleClosures(5);
+                            
+                            // Store references to prevent garbage collection
+                            eventHandlerData.lastEventData = {
+                                event: event,
+                                timestamp: Date.now(),
+                                generatedClosure: generatedClosure,
+                                processedData: processedData,
+                                additionalClosures: additionalClosures
+                            };
+                            
+                            // Return data that references everything
+                            return {
+                                element: capturedElement,
+                                eventType: capturedEventType,
+                                handlerData: eventHandlerData,
+                                generatedData: processedData,
+                                additionalClosures: additionalClosures
+                            };
+                        };
+                    })(generator, element, elementId, eventType);
+                    
+                    // Attach the event handler to the element
+                    element.addEventListener(eventType, closureEventHandler);
+                    
+                    // Store the handler to prevent garbage collection
+                    eventHandlers.push({
+                        eventType: eventType,
+                        handler: closureEventHandler,
+                        element: element,
+                        elementId: elementId,
+                        generator: generator
+                    });
+                });
+                
+                // Store event handlers to prevent garbage collection
+                this.closureEventHandlers.push(...eventHandlers);
+                
+                return eventHandlers;
+            }
+            
+            /**
+             * Create persistent closures that prevent garbage collection
+             * Part of Task 5: Closure-based memory leak pattern
+             * 
+             * @param {HTMLElement} element - The DOM element
+             * @param {number} elementId - Element identifier
+             * @param {Object} largeData - Large data structure
+             * @param {Array} closureGenerators - Array of closure generator functions
+             * @returns {Array} Array of persistent closures
+             */
+            createPersistentClosures(element, elementId, largeData, closureGenerators) {
+                const persistentClosures = [];
+                
+                // Create multiple persistent closures that capture large amounts of data
+                for (let i = 0; i < 20; i++) {
+                    // Create massive data structure for this persistent closure
+                    const persistentData = {
+                        closureId: i,
+                        elementId: elementId,
+                        element: element,
+                        largeData: largeData,
+                        generators: closureGenerators,
+                        // Massive arrays for this closure
+                        persistentArrays: new Array(800).fill(null).map((_, j) => ({
+                            persistentIndex: j,
+                            closureId: i,
+                            elementId: elementId,
+                            data: new Array(40).fill(`persistent-${elementId}-${i}-${j}`),
+                            metadata: {
+                                created: Date.now(),
+                                type: 'persistent-closure-data',
+                                elementRef: element
+                            }
+                        })),
+                        // Large typed arrays
+                        typedArrays: {
+                            float64Data: new Float64Array(400).fill(Math.random() * (elementId + i)),
+                            uint16Data: new Uint16Array(600).fill((elementId + i) % 65536),
+                            int8Data: new Int8Array(800).fill((elementId + i) % 128)
+                        },
+                        // Complex nested structures
+                        complexStructures: Object.fromEntries(
+                            new Array(150).fill(null).map((_, k) => [
+                                `complex_${elementId}_${i}_${k}`,
+                                {
+                                    data: new Array(25).fill(`complex-data-${elementId}-${i}-${k}`),
+                                    nestedObjects: Object.fromEntries(
+                                        new Array(10).fill(null).map((_, l) => [
+                                            `nested_${k}_${l}`,
+                                            {
+                                                value: new Array(15).fill(`nested-${elementId}-${i}-${k}-${l}`),
+                                                elementRef: element,
+                                                timestamp: Date.now()
+                                            }
+                                        ])
+                                    )
+                                }
+                            ])
+                        )
+                    };
+                    
+                    // Create persistent closure that captures all this data
+                    const persistentClosure = ((capturedElement, capturedId, capturedData, capturedGenerators, closureIndex) => {
+                        // This closure captures massive amounts of data and prevents garbage collection
+                        return {
+                            // Identifier functions
+                            getClosureId: () => closureIndex,
+                            getElementId: () => capturedId,
+                            getElement: () => capturedElement,
+                            
+                            // Data access functions that keep references alive
+                            getAllData: () => {
+                                return {
+                                    element: capturedElement,
+                                    elementId: capturedId,
+                                    persistentData: capturedData,
+                                    generators: capturedGenerators,
+                                    closureIndex: closureIndex,
+                                    timestamp: Date.now()
+                                };
+                            },
+                            
+                            // Function that processes all captured data
+                            processAllData: () => {
+                                const processedArrays = capturedData.persistentArrays.map(item => ({
+                                    ...item,
+                                    processed: true,
+                                    processingTime: Date.now()
+                                }));
+                                
+                                const processedTypedArrays = Object.fromEntries(
+                                    Object.entries(capturedData.typedArrays).map(([key, array]) => [
+                                        key,
+                                        {
+                                            originalArray: array,
+                                            length: array.length,
+                                            sum: Array.from(array).reduce((a, b) => a + b, 0),
+                                            processed: true
+                                        }
+                                    ])
+                                );
+                                
+                                return {
+                                    element: capturedElement,
+                                    elementId: capturedId,
+                                    closureIndex: closureIndex,
+                                    processedArrays: processedArrays,
+                                    processedTypedArrays: processedTypedArrays,
+                                    complexStructuresCount: Object.keys(capturedData.complexStructures).length,
+                                    timestamp: Date.now()
+                                };
+                            },
+                            
+                            // Function that creates additional nested closures
+                            createNestedClosures: (count) => {
+                                const nestedClosures = [];
+                                for (let j = 0; j < count; j++) {
+                                    const nestedClosure = ((nestedIndex, nestedElement, nestedData) => {
+                                        return {
+                                            nestedIndex: nestedIndex,
+                                            element: nestedElement,
+                                            data: nestedData,
+                                            // Additional large data in nested closure
+                                            nestedSpecificData: new Array(100).fill(null).map((_, k) => ({
+                                                nestedIndex: nestedIndex,
+                                                dataIndex: k,
+                                                elementId: capturedId,
+                                                data: new Array(20).fill(`nested-closure-${capturedId}-${closureIndex}-${nestedIndex}-${k}`),
+                                                timestamp: Date.now()
+                                            })),
+                                            // Function that accesses all nested data
+                                            accessNestedData: () => {
+                                                return {
+                                                    element: nestedElement,
+                                                    data: nestedData,
+                                                    nestedIndex: nestedIndex,
+                                                    nestedSpecificData: this.nestedSpecificData,
+                                                    timestamp: Date.now()
+                                                };
+                                            }
+                                        };
+                                    })(j, capturedElement, capturedData);
+                                    
+                                    nestedClosures.push(nestedClosure);
+                                }
+                                return nestedClosures;
+                            },
+                            
+                            // Function that uses generators to create more closures
+                            useGenerators: () => {
+                                const generatedClosures = [];
+                                capturedGenerators.forEach((generator, genIndex) => {
+                                    const generated = generator.generateClosure(`persistent-${closureIndex}-${genIndex}`);
+                                    const multiple = generator.generateMultipleClosures(3);
+                                    generatedClosures.push({
+                                        generator: generator,
+                                        generated: generated,
+                                        multiple: multiple,
+                                        timestamp: Date.now()
+                                    });
+                                });
+                                return generatedClosures;
+                            },
+                            
+                            // Circular reference to prevent cleanup
+                            getSelf: function() { return this; }
+                        };
+                    })(element, elementId, persistentData, closureGenerators, i);
+                    
+                    persistentClosures.push(persistentClosure);
+                }
+                
+                return persistentClosures;
+            }
+            
+            /**
+             * Create closure-specific large data structures
+             * Part of Task 5: Closure-based memory leak pattern
+             * 
+             * @param {number} elementId - Element identifier
+             * @returns {Object} Large data structure specific to closures
+             */
+            createClosureSpecificData(elementId) {
+                return {
+                    elementId: elementId,
+                    // Large string arrays
+                    stringArrays: new Array(600).fill(null).map((_, i) => 
+                        new Array(30).fill(`closure-specific-${elementId}-${i}`).join('-')
+                    ),
+                    // Large object structures
+                    objectStructures: Object.fromEntries(
+                        new Array(300).fill(null).map((_, i) => [
+                            `closure_obj_${elementId}_${i}`,
+                            {
+                                data: new Array(25).fill(`obj-data-${elementId}-${i}`),
+                                metadata: {
+                                    elementId: elementId,
+                                    index: i,
+                                    created: Date.now(),
+                                    type: 'closure-specific'
+                                },
+                                nestedData: new Array(15).fill(null).map((_, j) => ({
+                                    nestedIndex: j,
+                                    data: new Array(10).fill(`nested-obj-${elementId}-${i}-${j}`)
+                                }))
+                            }
+                        ])
+                    ),
+                    // Large typed arrays
+                    typedArrayData: {
+                        float32Array: new Float32Array(800).fill(Math.random() * elementId),
+                        uint32Array: new Uint32Array(600).fill(elementId),
+                        int16Array: new Int16Array(1000).fill(elementId % 32767),
+                        uint8Array: new Uint8Array(1200).fill(elementId % 256)
+                    },
+                    // Buffer data
+                    bufferData: {
+                        arrayBuffer: new ArrayBuffer(1024 * 20), // 20KB
+                        dataView: null // Will be created below
+                    }
+                };
+            }
+            
+            /**
              * Create function references that capture detached elements
              * Part of the reference array memory leak pattern
              * 
@@ -643,6 +1176,11 @@
                 const detachedReferenceMemory = this.detachedElementReferences.length * 1.5; // MB per detached ref
                 const largeDataMemory = this.largeDataStructures.length * 1.0; // MB per large data structure
                 
+                // Task 5: Closure-based memory leak pattern memory calculations
+                const closureBasedMemory = this.closureBasedLeaks.length * 3.0; // MB per closure-based leak (largest)
+                const closureGeneratorMemory = this.closureGenerators.length * 0.8; // MB per closure generator
+                const closureEventHandlerMemory = this.closureEventHandlers.length * 0.3; // MB per closure event handler
+                
                 return {
                     // Original leak patterns (Tasks 1-3)
                     totalElements: this.elementReferences.length,
@@ -653,13 +1191,21 @@
                     detachedElementReferences: this.detachedElementReferences.length,
                     largeDataStructures: this.largeDataStructures.length,
                     
+                    // Task 5: Closure-based memory leak pattern statistics
+                    closureBasedLeaks: this.closureBasedLeaks.length,
+                    closureGenerators: this.closureGenerators.length,
+                    closureEventHandlers: this.closureEventHandlers.length,
+                    
                     // Memory usage breakdown
                     memoryBreakdown: {
                         eventListeners: Math.round(eventListenerMemory),
                         elementReferences: Math.round(elementReferenceMemory),
                         referenceArrays: Math.round(referenceArrayMemory),
                         detachedReferences: Math.round(detachedReferenceMemory),
-                        largeDataStructures: Math.round(largeDataMemory)
+                        largeDataStructures: Math.round(largeDataMemory),
+                        closureBasedLeaks: Math.round(closureBasedMemory),
+                        closureGenerators: Math.round(closureGeneratorMemory),
+                        closureEventHandlers: Math.round(closureEventHandlerMemory)
                     },
                     
                     // Total estimated memory usage
@@ -668,7 +1214,10 @@
                         elementReferenceMemory + 
                         referenceArrayMemory + 
                         detachedReferenceMemory + 
-                        largeDataMemory
+                        largeDataMemory +
+                        closureBasedMemory +
+                        closureGeneratorMemory +
+                        closureEventHandlerMemory
                     )
                 };
             }
@@ -690,6 +1239,9 @@
                 // this.referenceArrayLeaks = [];
                 // this.detachedElementReferences = [];
                 // this.largeDataStructures = [];
+                // this.closureBasedLeaks = [];
+                // this.closureGenerators = [];
+                // this.closureEventHandlers = [];
                 
                 console.log('Cleanup attempted but references maintained for leak demonstration');
                 console.log(`Still holding ${this.elementReferences.length} element references`);
@@ -697,6 +1249,9 @@
                 console.log(`Still holding ${this.referenceArrayLeaks.length} reference array leaks`);
                 console.log(`Still holding ${this.detachedElementReferences.length} detached element references`);
                 console.log(`Still holding ${this.largeDataStructures.length} large data structures`);
+                console.log(`Still holding ${this.closureBasedLeaks.length} closure-based leaks`);
+                console.log(`Still holding ${this.closureGenerators.length} closure generators`);
+                console.log(`Still holding ${this.closureEventHandlers.length} closure event handlers`);
             }
         }
 
@@ -792,6 +1347,9 @@
                 console.log(`- ${factoryStats.referenceArrayLeaks} reference array leaks`);
                 console.log(`- ${factoryStats.detachedElementReferences} detached element references`);
                 console.log(`- ${factoryStats.largeDataStructures} large data structures`);
+                console.log(`- ${factoryStats.closureBasedLeaks} closure-based leaks`);
+                console.log(`- ${factoryStats.closureGenerators} closure generators`);
+                console.log(`- ${factoryStats.closureEventHandlers} closure event handlers`);
                 console.log(`- Memory breakdown:`, factoryStats.memoryBreakdown);
                 console.log(`- Total estimated ${factoryStats.estimatedMemoryMB}MB in memory`);
                 
@@ -837,6 +1395,7 @@
                     console.log(`Memory breakdown:`, factoryStats.memoryBreakdown);
                     console.log(`Total estimated memory usage: ${factoryStats.estimatedMemoryMB}MB`);
                     console.log(`Reference array leaks: ${factoryStats.referenceArrayLeaks}`);
+                    console.log(`Closure-based leaks: ${factoryStats.closureBasedLeaks}`);
                 }
             }
             

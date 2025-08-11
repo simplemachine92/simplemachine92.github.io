@@ -407,7 +407,14 @@
                 // Create functions that generate closures with large data captures
                 this.createClosureBasedLeak(element, elementId, largeData);
                 
-                console.log(`ElementFactory: Created element ${elementId} with ${this.elementReferences.length} total references`);
+                // Debug logging for first few elements and every 50th element
+                if (elementId <= 5 || elementId % 50 === 0) {
+                    console.log(`ElementFactory: Created element ${elementId}`);
+                    console.log(`- Total element references: ${this.elementReferences.length}`);
+                    console.log(`- Total event handlers: ${this.eventHandlers.length}`);
+                    console.log(`- Reference array leaks: ${this.referenceArrayLeaks.length}`);
+                    console.log(`- Closure-based leaks: ${this.closureBasedLeaks.length}`);
+                }
                 
                 return element;
             }
@@ -1510,6 +1517,7 @@
                 }
                 
                 console.log('Starting memory leak simulation...');
+                console.log('ElementFactory initialized:', !!this.elementFactory);
                 this.isRunning = true;
                 this.updateUI();
                 
@@ -1517,6 +1525,8 @@
                 this.intervalId = setInterval(() => {
                     this.createElement();
                 }, 50);
+                
+                console.log('Interval started with ID:', this.intervalId);
             }
             
             /**
@@ -1591,8 +1601,19 @@
                 // Update counter display
                 this.updateCounter();
                 
+                // Debug logging
+                if (this.elementCount <= 5 || this.elementCount % 50 === 0) {
+                    console.log(`Creating element ${this.elementCount}`);
+                }
+                
                 // Use ElementFactory to create element with memory leak patterns
                 const element = this.elementFactory.createElement(this.elementCount);
+                
+                // Verify element was created
+                if (!element) {
+                    console.error('ElementFactory.createElement returned null/undefined');
+                    return;
+                }
                 
                 // Add to DOM for visual feedback
                 this.leakElements.appendChild(element);
@@ -1717,14 +1738,31 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             leakController = new LeakController();
+            
+            // Make leakController available globally for debugging
+            window.leakController = leakController;
+            
+            // Add a test function to verify memory leaks are working
+            window.testMemoryLeak = function() {
+                console.log('=== MEMORY LEAK TEST ===');
+                const stats = leakController.getStats();
+                console.log('Controller stats:', stats);
+                
+                if (stats.elementCount > 0) {
+                    console.log('✅ Elements are being created');
+                    console.log('✅ ElementFactory has', stats.elementFactory.totalElements, 'element references');
+                    console.log('✅ ElementFactory has', stats.elementFactory.totalEventHandlers, 'event handlers');
+                    console.log('✅ Estimated memory usage:', stats.elementFactory.estimatedMemoryMB, 'MB');
+                } else {
+                    console.log('❌ No elements created yet - click Start Memory Leak button');
+                }
+                
+                return stats;
+            };
+            
             console.log('Memory leak reproduction page loaded');
             console.log('LeakController ready - use leakController.getStats() to check status');
-        });
-        
-        // Make leakController available globally for debugging
-        window.leakController = null;
-        document.addEventListener('DOMContentLoaded', () => {
-            window.leakController = leakController;
+            console.log('Use window.testMemoryLeak() to verify memory leaks are working');
         });
     </script>
 </body>

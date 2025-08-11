@@ -266,7 +266,9 @@
         /**
          * ElementFactory - Creates DOM elements with memory leak patterns
          * 
-         * This class implements the event listener memory leak pattern by:
+         * This class implements multiple memory leak patterns:
+         * - Event listener memory leak pattern (task 3)
+         * - Reference array memory leak pattern (task 4)
          * - Creating DOM elements with attached event listeners
          * - Implementing closures that capture DOM element references
          * - Storing elements in global array to prevent garbage collection
@@ -278,7 +280,12 @@
                 this.elementReferences = [];
                 this.eventHandlers = [];
                 
-                console.log('ElementFactory initialized');
+                // TASK 4: Reference array memory leak pattern storage system
+                this.referenceArrayLeaks = [];
+                this.detachedElementReferences = [];
+                this.largeDataStructures = [];
+                
+                console.log('ElementFactory initialized with reference array leak pattern');
             }
             
             /**
@@ -309,11 +316,11 @@
                     }
                 };
                 
-                // MEMORY LEAK PATTERN 1: Event listeners with closures
+                // MEMORY LEAK PATTERN 1: Event listeners with closures (Task 3)
                 // Create multiple event listeners that capture references
                 this.attachEventListeners(element, largeData);
                 
-                // MEMORY LEAK PATTERN 2: Store reference in global array
+                // MEMORY LEAK PATTERN 2: Store reference in global array (Task 3)
                 // This prevents garbage collection even after DOM removal
                 const elementReference = {
                     element: element,
@@ -326,6 +333,10 @@
                 
                 // Add to global array - this is the key memory leak
                 this.elementReferences.push(elementReference);
+                
+                // MEMORY LEAK PATTERN 3: Reference array memory leak pattern (Task 4)
+                // Create element reference storage system with large data structures
+                this.createReferenceArrayLeak(element, elementId, largeData);
                 
                 console.log(`ElementFactory: Created element ${elementId} with ${this.elementReferences.length} total references`);
                 
@@ -405,6 +416,185 @@
             }
             
             /**
+             * TASK 4: Create reference array memory leak pattern
+             * Requirements: 1.1, 1.2, 1.3 - Implement pattern where elements are removed from DOM but references retained
+             * 
+             * This method implements the reference array memory leak pattern by:
+             * - Creating element reference storage system
+             * - Storing elements with large data structures
+             * - Maintaining references even after DOM removal
+             * 
+             * @param {HTMLElement} element - The DOM element
+             * @param {number} elementId - Element identifier
+             * @param {Object} largeData - Large data structure associated with element
+             */
+            createReferenceArrayLeak(element, elementId, largeData) {
+                // TASK 4.1: Create element reference storage system
+                // Create multiple large data structures that will be retained in memory
+                const massiveDataStructure = {
+                    // Primary element reference
+                    elementRef: element,
+                    elementId: elementId,
+                    
+                    // Large arrays to consume significant memory
+                    primaryData: new Array(2000).fill(null).map((_, i) => ({
+                        index: i,
+                        data: `reference-array-data-${elementId}-${i}`,
+                        timestamp: Date.now(),
+                        // Nested large structure
+                        nestedArray: new Array(50).fill(`nested-${elementId}-${i}`)
+                    })),
+                    
+                    // Secondary large data structure
+                    secondaryData: {
+                        buffers: new Array(10).fill(null).map((_, i) => 
+                            new Array(500).fill(`buffer-${elementId}-${i}`)
+                        ),
+                        metadata: {
+                            created: new Date().toISOString(),
+                            elementId: elementId,
+                            size: 'massive',
+                            // Circular reference to prevent cleanup
+                            parent: null // Will be set below
+                        }
+                    },
+                    
+                    // Large typed arrays to simulate real-world data
+                    typedArrays: {
+                        float32Data: new Float32Array(1000).fill(Math.random()),
+                        uint8Data: new Uint8Array(2000).fill(elementId % 256),
+                        int32Data: new Int32Array(500).fill(elementId)
+                    },
+                    
+                    // DOM-related references that prevent garbage collection
+                    domReferences: {
+                        element: element,
+                        parentNode: element.parentNode,
+                        children: Array.from(element.children || []),
+                        attributes: Array.from(element.attributes || []),
+                        // Store computed styles to increase memory footprint
+                        computedStyles: null // Will be populated when element is in DOM
+                    }
+                };
+                
+                // Create circular reference to make cleanup harder
+                massiveDataStructure.secondaryData.metadata.parent = massiveDataStructure;
+                
+                // TASK 4.2: Store in reference array storage system
+                this.referenceArrayLeaks.push(massiveDataStructure);
+                
+                // Create additional detached element references
+                const detachedReference = {
+                    originalElement: element,
+                    elementId: elementId,
+                    // Clone element to create additional memory usage
+                    clonedElement: element.cloneNode(true),
+                    // Large data associated with detached element
+                    associatedData: new Array(1000).fill(null).map((_, i) => ({
+                        detachedIndex: i,
+                        originalId: elementId,
+                        data: new Array(100).fill(`detached-data-${elementId}-${i}`),
+                        timestamp: Date.now()
+                    })),
+                    // Function references that capture the element
+                    functionReferences: this.createDetachedFunctionReferences(element, elementId)
+                };
+                
+                this.detachedElementReferences.push(detachedReference);
+                
+                // TASK 4.3: Add large data structures to each element reference
+                const largeDataStructure = {
+                    elementId: elementId,
+                    element: element,
+                    // Massive string data
+                    stringData: new Array(500).fill(null).map((_, i) => 
+                        `large-string-data-${elementId}-${i}-`.repeat(20)
+                    ),
+                    // Object with many properties
+                    objectData: Object.fromEntries(
+                        new Array(200).fill(null).map((_, i) => [
+                            `prop_${elementId}_${i}`,
+                            {
+                                value: `value-${elementId}-${i}`,
+                                metadata: new Array(10).fill(`meta-${elementId}-${i}`),
+                                timestamp: Date.now()
+                            }
+                        ])
+                    ),
+                    // Nested arrays
+                    nestedArrays: new Array(50).fill(null).map((_, i) =>
+                        new Array(100).fill(null).map((_, j) =>
+                            new Array(10).fill(`nested-${elementId}-${i}-${j}`)
+                        )
+                    )
+                };
+                
+                this.largeDataStructures.push(largeDataStructure);
+                
+                console.log(`Reference array leak created for element ${elementId}`);
+                console.log(`- Reference arrays: ${this.referenceArrayLeaks.length}`);
+                console.log(`- Detached references: ${this.detachedElementReferences.length}`);
+                console.log(`- Large data structures: ${this.largeDataStructures.length}`);
+            }
+            
+            /**
+             * Create function references that capture detached elements
+             * Part of the reference array memory leak pattern
+             * 
+             * @param {HTMLElement} element - The DOM element
+             * @param {number} elementId - Element identifier
+             * @returns {Array} Array of function references
+             */
+            createDetachedFunctionReferences(element, elementId) {
+                const functionRefs = [];
+                
+                // Create multiple functions that capture the element
+                for (let i = 0; i < 20; i++) {
+                    const captureFunction = ((capturedElement, capturedId, index) => {
+                        // Large data captured in closure
+                        const capturedData = new Array(100).fill(`captured-${capturedId}-${index}`);
+                        
+                        return {
+                            // Function that returns element reference
+                            getElement: () => capturedElement,
+                            getId: () => capturedId,
+                            getIndex: () => index,
+                            getData: () => capturedData,
+                            
+                            // Function that processes element data
+                            processElement: () => {
+                                return {
+                                    element: capturedElement,
+                                    processed: true,
+                                    data: capturedData,
+                                    processingTime: Date.now(),
+                                    // Additional large data
+                                    processingResults: new Array(50).fill(`result-${capturedId}-${index}`)
+                                };
+                            },
+                            
+                            // Nested function that also captures references
+                            createNestedReference: () => {
+                                return ((nestedElement, nestedData) => {
+                                    return {
+                                        element: nestedElement,
+                                        data: nestedData,
+                                        nestedTimestamp: Date.now(),
+                                        // Even more data
+                                        additionalData: new Array(25).fill(`additional-${capturedId}-${index}`)
+                                    };
+                                })(capturedElement, capturedData);
+                            }
+                        };
+                    })(element, elementId, i);
+                    
+                    functionRefs.push(captureFunction);
+                }
+                
+                return functionRefs;
+            }
+            
+            /**
              * Create additional references to increase memory footprint
              * Requirements: 1.3 - Create closures that capture DOM element references
              * 
@@ -446,10 +636,40 @@
              * @returns {Object} Statistics object
              */
             getStats() {
+                // Calculate estimated memory usage for different leak patterns
+                const eventListenerMemory = this.eventHandlers.length * 0.1; // MB per handler
+                const elementReferenceMemory = this.elementReferences.length * 0.5; // MB per element
+                const referenceArrayMemory = this.referenceArrayLeaks.length * 2.0; // MB per reference array (larger)
+                const detachedReferenceMemory = this.detachedElementReferences.length * 1.5; // MB per detached ref
+                const largeDataMemory = this.largeDataStructures.length * 1.0; // MB per large data structure
+                
                 return {
+                    // Original leak patterns (Tasks 1-3)
                     totalElements: this.elementReferences.length,
                     totalEventHandlers: this.eventHandlers.length,
-                    estimatedMemoryMB: Math.round((this.elementReferences.length * 0.5) + (this.eventHandlers.length * 0.1))
+                    
+                    // Task 4: Reference array memory leak pattern statistics
+                    referenceArrayLeaks: this.referenceArrayLeaks.length,
+                    detachedElementReferences: this.detachedElementReferences.length,
+                    largeDataStructures: this.largeDataStructures.length,
+                    
+                    // Memory usage breakdown
+                    memoryBreakdown: {
+                        eventListeners: Math.round(eventListenerMemory),
+                        elementReferences: Math.round(elementReferenceMemory),
+                        referenceArrays: Math.round(referenceArrayMemory),
+                        detachedReferences: Math.round(detachedReferenceMemory),
+                        largeDataStructures: Math.round(largeDataMemory)
+                    },
+                    
+                    // Total estimated memory usage
+                    estimatedMemoryMB: Math.round(
+                        eventListenerMemory + 
+                        elementReferenceMemory + 
+                        referenceArrayMemory + 
+                        detachedReferenceMemory + 
+                        largeDataMemory
+                    )
                 };
             }
             
@@ -467,10 +687,16 @@
                 // We could clear the arrays here, but we intentionally don't
                 // this.elementReferences = [];
                 // this.eventHandlers = [];
+                // this.referenceArrayLeaks = [];
+                // this.detachedElementReferences = [];
+                // this.largeDataStructures = [];
                 
                 console.log('Cleanup attempted but references maintained for leak demonstration');
                 console.log(`Still holding ${this.elementReferences.length} element references`);
                 console.log(`Still holding ${this.eventHandlers.length} event handler references`);
+                console.log(`Still holding ${this.referenceArrayLeaks.length} reference array leaks`);
+                console.log(`Still holding ${this.detachedElementReferences.length} detached element references`);
+                console.log(`Still holding ${this.largeDataStructures.length} large data structures`);
             }
         }
 
@@ -563,7 +789,11 @@
                 console.log(`Leak stopped. ElementFactory still holds:`);
                 console.log(`- ${factoryStats.totalElements} element references`);
                 console.log(`- ${factoryStats.totalEventHandlers} event handler references`);
-                console.log(`- Estimated ${factoryStats.estimatedMemoryMB}MB in memory`);
+                console.log(`- ${factoryStats.referenceArrayLeaks} reference array leaks`);
+                console.log(`- ${factoryStats.detachedElementReferences} detached element references`);
+                console.log(`- ${factoryStats.largeDataStructures} large data structures`);
+                console.log(`- Memory breakdown:`, factoryStats.memoryBreakdown);
+                console.log(`- Total estimated ${factoryStats.estimatedMemoryMB}MB in memory`);
                 
                 // Demonstrate incomplete cleanup attempt
                 this.elementFactory.attemptCleanup();
@@ -604,7 +834,9 @@
                     const factoryStats = this.elementFactory.getStats();
                     console.log(`Created ${this.elementCount} elements`);
                     console.log(`ElementFactory stats:`, factoryStats);
-                    console.log(`Estimated memory usage: ${factoryStats.estimatedMemoryMB}MB`);
+                    console.log(`Memory breakdown:`, factoryStats.memoryBreakdown);
+                    console.log(`Total estimated memory usage: ${factoryStats.estimatedMemoryMB}MB`);
+                    console.log(`Reference array leaks: ${factoryStats.referenceArrayLeaks}`);
                 }
             }
             

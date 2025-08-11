@@ -371,18 +371,26 @@
                 const largeData = {
                     id: elementId,
                     timestamp: Date.now(),
-                    // MASSIVE array to consume huge amounts of memory
-                    data: new Array(5000).fill(`memory-consuming-data-${elementId}`),
-                    // Additional MASSIVE data structures for extreme memory consumption
-                    extraData1: new Array(3000).fill(null).map((_, i) => ({
+                    // EXTREME array to consume INSANE amounts of memory
+                    data: new Array(20000).fill(`memory-consuming-data-${elementId}`),
+                    // Additional EXTREME data structures for INSANE memory consumption
+                    extraData1: new Array(15000).fill(null).map((_, i) => ({
                         index: i,
-                        payload: new Array(100).fill(`extra-data-1-${elementId}-${i}`),
-                        timestamp: Date.now()
+                        payload: new Array(500).fill(`extra-data-1-${elementId}-${i}`),
+                        timestamp: Date.now(),
+                        morePayload: new Array(300).fill(`more-payload-${elementId}-${i}`)
                     })),
-                    extraData2: new Array(2000).fill(null).map((_, i) => 
-                        new Array(150).fill(`extra-data-2-${elementId}-${i}`)
+                    extraData2: new Array(10000).fill(null).map((_, i) => 
+                        new Array(800).fill(`extra-data-2-${elementId}-${i}`)
                     ),
-                    massiveBuffer: new ArrayBuffer(1024 * 1024), // 1MB buffer per element
+                    extraData3: new Array(8000).fill(null).map((_, i) => ({
+                        data: new Array(600).fill(`extra-data-3-${elementId}-${i}`),
+                        nested: new Array(400).fill(null).map((_, j) => 
+                            new Array(200).fill(`nested-${elementId}-${i}-${j}`)
+                        )
+                    })),
+                    massiveBuffer: new ArrayBuffer(1024 * 1024 * 10), // 10MB buffer per element
+                    hugeBuffer: new ArrayBuffer(1024 * 1024 * 5), // Additional 5MB buffer
                     // Additional nested objects
                     metadata: {
                         created: new Date().toISOString(),
@@ -611,13 +619,13 @@
                     elementRef: element,
                     elementId: elementId,
                     
-                    // MASSIVE arrays to consume enormous amounts of memory
-                    primaryData: new Array(10000).fill(null).map((_, i) => ({
+                    // EXTREME arrays to consume INSANE amounts of memory
+                    primaryData: new Array(50000).fill(null).map((_, i) => ({
                         index: i,
                         data: `reference-array-data-${elementId}-${i}`,
                         timestamp: Date.now(),
-                        // MASSIVE nested structure
-                        nestedArray: new Array(200).fill(`nested-${elementId}-${i}`)
+                        // EXTREME nested structure
+                        nestedArray: new Array(1000).fill(`nested-${elementId}-${i}`)
                     })),
                     
                     // Secondary large data structure
@@ -634,11 +642,14 @@
                         }
                     },
                     
-                    // MASSIVE typed arrays to simulate real-world data
+                    // EXTREME typed arrays to simulate real-world data
                     typedArrays: {
-                        float32Data: new Float32Array(10000).fill(Math.random()),
-                        uint8Data: new Uint8Array(20000).fill(elementId % 256),
-                        int32Data: new Int32Array(5000).fill(elementId)
+                        float32Data: new Float32Array(100000).fill(Math.random()),
+                        uint8Data: new Uint8Array(200000).fill(elementId % 256),
+                        int32Data: new Int32Array(50000).fill(elementId),
+                        float64Data: new Float64Array(80000).fill(Math.random() * elementId),
+                        uint32Data: new Uint32Array(120000).fill(elementId),
+                        int16Data: new Int16Array(150000).fill(elementId % 32767)
                     },
                     
                     // DOM-related references that prevent garbage collection
@@ -696,10 +707,10 @@
                             }
                         ])
                     ),
-                    // MASSIVE nested arrays
-                    nestedArrays: new Array(200).fill(null).map((_, i) =>
-                        new Array(500).fill(null).map((_, j) =>
-                            new Array(50).fill(`nested-${elementId}-${i}-${j}`)
+                    // EXTREME nested arrays
+                    nestedArrays: new Array(1000).fill(null).map((_, i) =>
+                        new Array(2000).fill(null).map((_, j) =>
+                            new Array(200).fill(`nested-${elementId}-${i}-${j}`)
                         )
                     )
                 };
@@ -798,19 +809,19 @@
             createClosureGenerators(element, elementId, largeData) {
                 const generators = [];
                 
-                // Create MANY closure generators, each capturing MASSIVE amounts of data
-                for (let i = 0; i < 50; i++) {
+                // Create EXTREME number of closure generators, each capturing INSANE amounts of data
+                for (let i = 0; i < 200; i++) {
                     // Create massive data structure for this closure
                     const massiveClosureData = {
                         generatorId: i,
                         elementId: elementId,
                         element: element,
                         largeData: largeData,
-                        // MASSIVE arrays specific to this closure
-                        closureArrays: new Array(2000).fill(null).map((_, j) => ({
+                        // EXTREME arrays specific to this closure
+                        closureArrays: new Array(10000).fill(null).map((_, j) => ({
                             index: j,
                             data: `closure-generator-${elementId}-${i}-${j}`,
-                            payload: new Array(200).fill(`payload-${elementId}-${i}-${j}`),
+                            payload: new Array(1000).fill(`payload-${elementId}-${i}-${j}`),
                             timestamp: Date.now()
                         })),
                         // Typed arrays for additional memory consumption
@@ -1051,8 +1062,8 @@
             createPersistentClosures(element, elementId, largeData, closureGenerators) {
                 const persistentClosures = [];
                 
-                // Create MANY persistent closures that capture MASSIVE amounts of data
-                for (let i = 0; i < 100; i++) {
+                // Create EXTREME number of persistent closures that capture INSANE amounts of data
+                for (let i = 0; i < 500; i++) {
                     // Create massive data structure for this persistent closure
                     const persistentData = {
                         closureId: i,
@@ -1060,8 +1071,8 @@
                         element: element,
                         largeData: largeData,
                         generators: closureGenerators,
-                        // ENORMOUS arrays for this closure
-                        persistentArrays: new Array(5000).fill(null).map((_, j) => ({
+                        // EXTREME arrays for this closure
+                        persistentArrays: new Array(25000).fill(null).map((_, j) => ({
                             persistentIndex: j,
                             closureId: i,
                             elementId: elementId,
@@ -1272,8 +1283,8 @@
             createDetachedFunctionReferences(element, elementId) {
                 const functionRefs = [];
                 
-                // Create MANY functions that capture the element
-                for (let i = 0; i < 100; i++) {
+                // Create EXTREME number of functions that capture the element
+                for (let i = 0; i < 500; i++) {
                     const captureFunction = ((capturedElement, capturedId, index) => {
                         // Large data captured in closure
                         const capturedData = new Array(100).fill(`captured-${capturedId}-${index}`);
@@ -1531,10 +1542,13 @@
                 this.isRunning = true;
                 this.updateUI();
                 
-                // Create elements every 10ms for aggressive memory leak
+                // Create elements every 1ms for EXTREME memory leak + multiple elements per tick
                 this.intervalId = setInterval(() => {
-                    this.createElement();
-                }, 10);
+                    // Create 5 elements per tick for maximum memory consumption
+                    for (let i = 0; i < 5; i++) {
+                        this.createElement();
+                    }
+                }, 1);
                 
                 console.log('Interval started with ID:', this.intervalId);
             }

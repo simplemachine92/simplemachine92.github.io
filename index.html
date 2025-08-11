@@ -263,9 +263,194 @@
     </div>
 
     <script>
-        // JavaScript implementation will be added in subsequent tasks
-        console.log('Memory leak reproduction page loaded');
-        console.log('Ready for leak controller implementation');
+        /**
+         * LeakController - Manages the memory leak simulation
+         * 
+         * This class handles:
+         * - Start/stop functionality for the leak simulation
+         * - Counter tracking and display updates
+         * - Interval management for continuous element creation
+         * - UI state management (buttons, status indicators)
+         */
+        class LeakController {
+            constructor() {
+                // State management
+                this.isRunning = false;
+                this.elementCount = 0;
+                this.intervalId = null;
+                this.elementReferences = []; // Will store references that prevent GC
+                
+                // DOM element references
+                this.startButton = document.getElementById('start');
+                this.stopButton = document.getElementById('stop');
+                this.counter = document.getElementById('counter');
+                this.statusIndicator = document.getElementById('status-indicator');
+                this.statusText = document.getElementById('status-text');
+                this.leakElements = document.getElementById('leak-elements');
+                
+                // Bind event handlers
+                this.initializeEventHandlers();
+                
+                console.log('LeakController initialized');
+            }
+            
+            /**
+             * Initialize event handlers for start/stop buttons
+             */
+            initializeEventHandlers() {
+                this.startButton.addEventListener('click', () => this.startLeak());
+                this.stopButton.addEventListener('click', () => this.stopLeak());
+            }
+            
+            /**
+             * Start the memory leak simulation
+             * Requirements: 3.1 - Provide start/stop controls for the memory leak simulation
+             */
+            startLeak() {
+                if (this.isRunning) {
+                    console.warn('Leak is already running');
+                    return;
+                }
+                
+                console.log('Starting memory leak simulation...');
+                this.isRunning = true;
+                this.updateUI();
+                
+                // Create elements every 50ms as specified in design
+                this.intervalId = setInterval(() => {
+                    this.createElement();
+                }, 50);
+            }
+            
+            /**
+             * Stop the memory leak simulation
+             * Requirements: 3.1 - Provide start/stop controls for the memory leak simulation
+             * Note: This stops new element creation but doesn't clean up existing leaks
+             */
+            stopLeak() {
+                if (!this.isRunning) {
+                    console.warn('Leak is not running');
+                    return;
+                }
+                
+                console.log('Stopping memory leak simulation...');
+                this.isRunning = false;
+                
+                // Clear the interval to stop creating new elements
+                if (this.intervalId) {
+                    clearInterval(this.intervalId);
+                    this.intervalId = null;
+                }
+                
+                this.updateUI();
+                
+                // Note: We intentionally don't clean up elementReferences array
+                // This maintains the memory leak for demonstration purposes
+                console.log(`Leak stopped. ${this.elementReferences.length} elements still referenced in memory`);
+            }
+            
+            /**
+             * Create a single element (placeholder for now)
+             * This will be expanded in subsequent tasks to implement actual leak patterns
+             */
+            createElement() {
+                // Increment counter
+                this.elementCount++;
+                
+                // Update counter display
+                this.updateCounter();
+                
+                // Create a visual element for demonstration
+                const element = document.createElement('div');
+                element.className = 'leak-element';
+                element.textContent = `#${this.elementCount}`;
+                
+                // Add to DOM for visual feedback
+                this.leakElements.appendChild(element);
+                
+                // Store reference to prevent garbage collection (basic leak pattern)
+                this.elementReferences.push({
+                    element: element,
+                    id: this.elementCount,
+                    timestamp: Date.now(),
+                    // Add some data to make the leak more significant
+                    data: new Array(100).fill(`leak-data-${this.elementCount}`)
+                });
+                
+                // Remove from DOM after a short time but keep the reference
+                // This creates the memory leak pattern
+                setTimeout(() => {
+                    if (element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                    // Element is removed from DOM but reference remains in elementReferences array
+                }, 1000);
+                
+                // Log progress every 100 elements
+                if (this.elementCount % 100 === 0) {
+                    console.log(`Created ${this.elementCount} elements, ${this.elementReferences.length} references in memory`);
+                }
+            }
+            
+            /**
+             * Update the counter display
+             * Requirements: 3.2 - Display a counter or indicator showing activity
+             */
+            updateCounter() {
+                this.counter.textContent = `Elements created: ${this.elementCount}`;
+            }
+            
+            /**
+             * Update UI state (buttons, status indicators)
+             * Requirements: 3.2 - Display a counter or indicator showing activity
+             */
+            updateUI() {
+                if (this.isRunning) {
+                    // Update button states
+                    this.startButton.disabled = true;
+                    this.stopButton.disabled = false;
+                    
+                    // Update status indicator
+                    this.statusIndicator.className = 'status-indicator running';
+                    this.statusText.textContent = 'Running';
+                } else {
+                    // Update button states
+                    this.startButton.disabled = false;
+                    this.stopButton.disabled = true;
+                    
+                    // Update status indicator
+                    this.statusIndicator.className = 'status-indicator stopped';
+                    this.statusText.textContent = 'Stopped';
+                }
+            }
+            
+            /**
+             * Get current leak statistics for debugging
+             */
+            getStats() {
+                return {
+                    isRunning: this.isRunning,
+                    elementCount: this.elementCount,
+                    referencesInMemory: this.elementReferences.length,
+                    intervalId: this.intervalId
+                };
+            }
+        }
+        
+        // Initialize the leak controller when the page loads
+        let leakController;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            leakController = new LeakController();
+            console.log('Memory leak reproduction page loaded');
+            console.log('LeakController ready - use leakController.getStats() to check status');
+        });
+        
+        // Make leakController available globally for debugging
+        window.leakController = null;
+        document.addEventListener('DOMContentLoaded', () => {
+            window.leakController = leakController;
+        });
     </script>
 </body>
 </html>

@@ -94,112 +94,14 @@
             background: #15803d;
         }
 
-        #stop {
-            background: #dc2626;
-            color: white;
-        }
-
-        #stop:hover:not(:disabled) {
-            background: #b91c1c;
-        }
-
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        /* TASK 6: VISUAL FEEDBACK STYLING - Real-time Counter Display */
-        #counter {
-            font-size: 16px;
-            font-weight: 600;      /* Bold text for visibility */
-            color: #374151;        /* Dark gray for readability */
-            padding: 8px 12px;
-            background: white;     /* White background makes counter stand out */
-            border: 2px solid #d1d5db;  /* Border emphasizes importance */
-            border-radius: 6px;
-            min-width: 200px;      /* Ensures counter doesn't jump around as numbers grow */
-        }
-        
-        /* Counter styling emphasizes real-time feedback - users can immediately
-           see the count growing, correlating visual feedback with memory allocation */
 
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        }
 
-        /* TASK 6: VISUAL FEEDBACK STYLING - Status Indicators */
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #6b7280;  /* Default gray state */
-        }
 
-        /* Running state: Green with pulsing animation for immediate visual feedback */
-        .status-indicator.running {
-            background: #16a34a;           /* Green = active/running */
-            animation: pulse 2s infinite;  /* Pulsing draws attention */
-        }
-
-        /* Stopped state: Red solid for clear stopped indication */
-        .status-indicator.stopped {
-            background: #dc2626;  /* Red = stopped/inactive */
-        }
-
-        /* Pulsing animation makes running state highly visible */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }      /* Full opacity */
-            50% { opacity: 0.5; }         /* Half opacity creates pulse effect */
-        }
-
-        #leak-area {
-            padding: 20px;
-            min-height: 200px;
-            background: #f9fafb;
-            border-top: 1px solid #e5e5e5;
-        }
-
-        .leak-area-header {
-            margin-bottom: 15px;
-            color: #374151;
-            font-weight: 500;
-        }
-
-        .leak-elements {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        /* TASK 6: VISUAL FEEDBACK STYLING - Leak Element Animation */
-        .leak-element {
-            width: 100px;
-            height: 60px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);  /* Blue gradient */
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: 500;
-            opacity: 0;                           /* Start invisible */
-            animation: fadeIn 0.3s ease forwards; /* Fade in animation */
-        }
-
-        /* Fade-in animation provides visual feedback when elements are created */
-        @keyframes fadeIn {
-            to { opacity: 1; }  /* Fade to full opacity over 0.3s */
-        }
-        
-        /* This animation helps users see elements being created in real-time,
-           even though they disappear after 1 second while memory leaks persist */
 
         .instructions {
             padding: 20px;
@@ -270,24 +172,7 @@
 
         <div id="controls">
             <div class="control-group">
-                <button id="start">Start Memory Leak</button>
-                <button id="stop" disabled>Stop Leak</button>
-                <div class="status">
-                    <div class="status-indicator stopped" id="status-indicator"></div>
-                    <span id="status-text">Stopped</span>
-                </div>
-            </div>
-            <div class="control-group">
-                <div id="counter">Elements created: 0</div>
-            </div>
-        </div>
-
-        <div id="leak-area">
-            <div class="leak-area-header">
-                Leak Visualization Area
-            </div>
-            <div class="leak-elements" id="leak-elements">
-                <!-- Dynamic elements will be created here -->
+                <button id="start">Start Extreme Memory Leak</button>
             </div>
         </div>
 
@@ -305,52 +190,25 @@
 
     <script>
         /**
-         * ElementFactory - Creates DOM elements with memory leak patterns
+         * ElementFactory - Creates DOM elements with EXTREME event listener memory leaks
          * 
-         * TASK 6: VISUAL FEEDBACK AND MONITORING - Enhanced Comments
-         * This class implements multiple memory leak patterns found in UI libraries like Radix:
-         * 
-         * MEMORY LEAK PATTERN 1 - Event Listener Leaks (Task 3):
-         * - Creates DOM elements with multiple event listeners attached
-         * - Event listeners contain closures that capture large data structures
+         * FOCUSED ON ORIGINAL RADIX PATTERN - Event Listener Memory Leaks:
+         * - Creates DOM elements with MASSIVE numbers of event listeners
+         * - Event listeners contain closures that capture HUGE data structures
          * - When elements are removed from DOM, event listeners are NOT cleaned up
          * - Closures prevent garbage collection of captured data and DOM references
-         * - Result: Memory grows continuously as listeners accumulate
+         * - Result: EXTREME memory growth as listeners accumulate rapidly
          * 
-         * MEMORY LEAK PATTERN 2 - Reference Array Leaks (Task 4):
-         * - Stores element references in global arrays to prevent garbage collection
-         * - Elements are removed from DOM but references remain in memory
-         * - Each reference includes large data structures (arrays, objects, typed arrays)
-         * - Creates detached DOM nodes that cannot be garbage collected
-         * - Result: Heap memory grows with each element created
-         * 
-         * MEMORY LEAK PATTERN 3 - Closure-Based Leaks (Task 5):
-         * - Creates functions that generate closures capturing massive data
-         * - Closures are attached as event handlers to DOM elements
-         * - Each closure captures element references and large data structures
-         * - Nested closures create complex reference chains preventing cleanup
-         * - Result: Most memory-intensive pattern due to closure scope retention
-         * 
-         * These patterns simulate real-world memory leaks in component libraries
-         * where proper cleanup is not implemented during component unmounting.
+         * This pattern simulates the original Radix UI memory leak issue but at maximum intensity
+         * for dramatic demonstration of event listener cleanup problems.
          */
         class ElementFactory {
             constructor() {
-                // Global array to store element references and prevent garbage collection
+                // Global arrays to store event handler references (the core leak)
                 this.elementReferences = [];
                 this.eventHandlers = [];
                 
-                // TASK 4: Reference array memory leak pattern storage system
-                this.referenceArrayLeaks = [];
-                this.detachedElementReferences = [];
-                this.largeDataStructures = [];
-                
-                // TASK 5: Closure-based memory leak pattern storage
-                this.closureBasedLeaks = [];
-                this.closureGenerators = [];
-                this.closureEventHandlers = [];
-                
-                console.log('ElementFactory initialized with reference array and closure-based leak patterns');
+                console.log('ElementFactory initialized for EXTREME event listener memory leaks');
             }
             
             /**
@@ -367,213 +225,170 @@
                 element.textContent = `#${elementId}`;
                 element.setAttribute('data-id', elementId);
                 
-                // Create large data structure to make memory leak more significant
-                const largeData = {
+                // Create MASSIVE data structure for EXTREME event listener memory leaks
+                const massiveEventData = {
                     id: elementId,
                     timestamp: Date.now(),
-                    // EXTREME array to consume INSANE amounts of memory
-                    data: new Array(20000).fill(`memory-consuming-data-${elementId}`),
-                    // Additional EXTREME data structures for INSANE memory consumption
-                    extraData1: new Array(15000).fill(null).map((_, i) => ({
+                    // ENORMOUS arrays to be captured in event listener closures
+                    eventData1: new Array(50000).fill(`event-data-${elementId}`),
+                    eventData2: new Array(30000).fill(null).map((_, i) => ({
                         index: i,
-                        payload: new Array(500).fill(`extra-data-1-${elementId}-${i}`),
+                        payload: new Array(1000).fill(`event-payload-${elementId}-${i}`),
                         timestamp: Date.now(),
-                        morePayload: new Array(300).fill(`more-payload-${elementId}-${i}`)
+                        extraPayload: new Array(800).fill(`extra-event-payload-${elementId}-${i}`)
                     })),
-                    extraData2: new Array(10000).fill(null).map((_, i) => 
-                        new Array(800).fill(`extra-data-2-${elementId}-${i}`)
+                    eventData3: new Array(25000).fill(null).map((_, i) => 
+                        new Array(1200).fill(`massive-event-data-${elementId}-${i}`)
                     ),
-                    extraData3: new Array(8000).fill(null).map((_, i) => ({
-                        data: new Array(600).fill(`extra-data-3-${elementId}-${i}`),
-                        nested: new Array(400).fill(null).map((_, j) => 
-                            new Array(200).fill(`nested-${elementId}-${i}-${j}`)
-                        )
-                    })),
-                    massiveBuffer: new ArrayBuffer(1024 * 1024 * 10), // 10MB buffer per element
-                    hugeBuffer: new ArrayBuffer(1024 * 1024 * 5), // Additional 5MB buffer
-                    // Additional nested objects
-                    metadata: {
+                    // HUGE buffers that will be captured in closures
+                    eventBuffer1: new ArrayBuffer(1024 * 1024 * 20), // 20MB per element
+                    eventBuffer2: new ArrayBuffer(1024 * 1024 * 15), // 15MB per element
+                    eventBuffer3: new ArrayBuffer(1024 * 1024 * 10), // 10MB per element
+                    // Nested structures for event handlers
+                    eventMetadata: {
                         created: new Date().toISOString(),
-                        type: 'leak-element',
-                        references: new Array(100).fill({ ref: `ref-${elementId}` })
+                        type: 'extreme-event-leak-element',
+                        eventRefs: new Array(2000).fill(null).map((_, i) => ({
+                            ref: `event-ref-${elementId}-${i}`,
+                            data: new Array(500).fill(`ref-data-${elementId}-${i}`)
+                        }))
                     }
                 };
                 
-                // MEMORY LEAK PATTERN 1: Event listeners with closures (Task 3)
-                // Create multiple event listeners that capture references
-                this.attachEventListeners(element, largeData);
+                // EXTREME EVENT LISTENER MEMORY LEAK PATTERN
+                // Create MASSIVE numbers of event listeners that capture HUGE data
+                this.attachExtremeEventListeners(element, massiveEventData);
                 
-                // MEMORY LEAK PATTERN 2: Store reference in global array (Task 3)
-                // This prevents garbage collection even after DOM removal
+                // Store reference in global array to prevent garbage collection
                 const elementReference = {
                     element: element,
-                    data: largeData,
+                    eventData: massiveEventData,
                     id: elementId,
-                    timestamp: Date.now(),
-                    // Store additional references to increase memory footprint
-                    additionalRefs: this.createAdditionalReferences(element, elementId)
+                    timestamp: Date.now()
                 };
                 
-                // Add to global array - this is the key memory leak
+                // Add to global array - this prevents garbage collection
                 this.elementReferences.push(elementReference);
                 
-                // MEMORY LEAK PATTERN 3: Reference array memory leak pattern (Task 4)
-                // Create element reference storage system with large data structures
-                this.createReferenceArrayLeak(element, elementId, largeData);
-                
-                // MEMORY LEAK PATTERN 4: Closure-based memory leak pattern (Task 5)
-                // Create functions that generate closures with large data captures
-                this.createClosureBasedLeak(element, elementId, largeData);
-                
-                // Debug logging for first few elements and every 50th element
-                if (elementId <= 5 || elementId % 50 === 0) {
-                    console.log(`ElementFactory: Created element ${elementId}`);
+                // Debug logging for first few elements and every 25th element
+                if (elementId <= 5 || elementId % 25 === 0) {
+                    console.log(`🔥 EXTREME EVENT LEAK: Created element ${elementId}`);
                     console.log(`- Total element references: ${this.elementReferences.length}`);
                     console.log(`- Total event handlers: ${this.eventHandlers.length}`);
-                    console.log(`- Reference array leaks: ${this.referenceArrayLeaks.length}`);
-                    console.log(`- Closure-based leaks: ${this.closureBasedLeaks.length}`);
+                    console.log(`- Estimated memory per element: ~45MB`);
+                    console.log(`- Total estimated memory: ~${Math.round(this.elementReferences.length * 45)}MB`);
                 }
                 
                 return element;
             }
             
             /**
-             * TASK 6: ENHANCED COMMENTS - Event Listener Memory Leak Pattern
+             * EXTREME EVENT LISTENER MEMORY LEAK PATTERN
              * 
-             * This method demonstrates the EVENT LISTENER MEMORY LEAK PATTERN:
+             * This method creates the ORIGINAL RADIX-STYLE memory leak but at MAXIMUM INTENSITY:
              * 
-             * HOW THE LEAK WORKS:
-             * 1. Multiple event listeners are attached to each DOM element
-             * 2. Each listener contains a closure that captures:
-             *    - The DOM element reference
-             *    - Large data structures (arrays, objects)
-             *    - Additional metadata and nested references
+             * HOW THE EXTREME LEAK WORKS:
+             * 1. MASSIVE numbers of event listeners are attached to each DOM element (50+ types)
+             * 2. Each listener contains a closure that captures HUGE data structures (45MB+ per element)
              * 3. When element is removed from DOM, listeners are NOT removed
-             * 4. Closures keep references alive, preventing garbage collection
-             * 5. Memory accumulates with each element created
+             * 4. Closures keep ALL captured data alive, preventing garbage collection
+             * 5. Memory accumulates at EXTREME rate with each element created
              * 
-             * WHY THIS CAUSES MEMORY LEAKS:
-             * - Event listeners remain in browser's event system
-             * - Closures capture and retain all referenced data
-             * - Garbage collector cannot free memory while references exist
-             * - Pattern multiplies: 3 listeners × large data × many elements
+             * WHY THIS CAUSES EXTREME MEMORY LEAKS:
+             * - 50+ event listeners per element remain in browser's event system
+             * - Each closure captures 45MB+ of data structures
+             * - Garbage collector cannot free ANY memory while references exist
+             * - Pattern multiplies: 50+ listeners × 45MB data × 5000 elements/second = INSANE growth
              * 
-             * REAL-WORLD EQUIVALENT:
-             * This simulates React/Vue components that add event listeners
-             * but forget to remove them in cleanup/unmount lifecycle methods.
-             * 
-             * Requirements: 1.1, 1.2 - Event listener attachment without proper cleanup
+             * This simulates the original Radix UI event listener cleanup issue
+             * but amplified to maximum intensity for dramatic demonstration.
              * 
              * @param {HTMLElement} element - The DOM element
-             * @param {Object} largeData - Large data structure captured in closures
+             * @param {Object} massiveEventData - HUGE data structure captured in closures
              */
-            attachEventListeners(element, largeData) {
-                // TASK 6: LEAK PATTERN EXPLANATION - Click Handler Memory Leak
-                // This demonstrates CLOSURE-BASED MEMORY RETENTION:
-                const clickHandler = (event) => {
-                    // MEMORY LEAK MECHANISM:
-                    // 1. This closure captures 'element' and 'largeData' in its scope
-                    // 2. Even when element is removed from DOM, this handler keeps references alive
-                    // 3. Browser's event system maintains reference to this function
-                    // 4. Function scope prevents garbage collection of captured variables
-                    // 5. Large data structures remain in memory indefinitely
-                    
-                    console.log('Clicked element:', element.getAttribute('data-id'));
-                    console.log('Data size:', largeData.data.length);
-                    
-                    // Access the large data to ensure it's captured in closure scope
-                    // This forces the JavaScript engine to retain all largeData in memory
-                    const dataSize = largeData.data.reduce((acc, item) => acc + item.length, 0);
-                    console.log('Total data characters:', dataSize);
-                    
-                    // LEAK AMPLIFICATION: Each access reinforces the memory retention
-                };
+            attachExtremeEventListeners(element, massiveEventData) {
+                // Create EXTREME numbers of event listeners with MASSIVE data capture
+                // This simulates the original Radix event listener cleanup issue at maximum intensity
                 
-                // TASK 6: LEAK PATTERN EXPLANATION - Mouseover Handler Memory Leak
-                // This demonstrates RECURSIVE REFERENCE ACCUMULATION:
-                const mouseoverHandler = (event) => {
-                    // MEMORY LEAK MECHANISM:
-                    // 1. Creates new object with element and data references
-                    // 2. Stores handler reference in global array (this.eventHandlers)
-                    // 3. Each mouseover event creates MORE references
-                    // 4. References accumulate without bounds
-                    // 5. Creates circular reference chains that resist garbage collection
-                    
-                    const elementInfo = {
-                        id: element.getAttribute('data-id'),
-                        data: largeData,           // Captures large data structure
-                        element: element           // Direct DOM element reference
+                const eventTypes = [
+                    'click', 'dblclick', 'mousedown', 'mouseup', 'mouseover', 'mouseout', 'mousemove', 'mouseenter', 'mouseleave',
+                    'focus', 'blur', 'focusin', 'focusout', 'keydown', 'keyup', 'keypress',
+                    'touchstart', 'touchend', 'touchmove', 'touchcancel',
+                    'pointerdown', 'pointerup', 'pointermove', 'pointerover', 'pointerout', 'pointerenter', 'pointerleave',
+                    'dragstart', 'drag', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop',
+                    'wheel', 'scroll', 'resize', 'load', 'unload', 'beforeunload',
+                    'change', 'input', 'submit', 'reset', 'select',
+                    'contextmenu', 'copy', 'cut', 'paste',
+                    'animationstart', 'animationend', 'animationiteration',
+                    'transitionstart', 'transitionend', 'transitionrun', 'transitioncancel'
+                ];
+                
+                // Create event handlers for ALL event types - each captures MASSIVE data
+                eventTypes.forEach((eventType, index) => {
+                    // Create unique massive data for each event handler
+                    const handlerSpecificData = {
+                        eventType: eventType,
+                        handlerIndex: index,
+                        element: element,
+                        massiveEventData: massiveEventData,
+                        // Additional HUGE data specific to this handler
+                        handlerData: new Array(5000).fill(null).map((_, i) => ({
+                            index: i,
+                            eventType: eventType,
+                            payload: new Array(800).fill(`handler-${eventType}-${element.getAttribute('data-id')}-${i}`),
+                            timestamp: Date.now(),
+                            extraPayload: new Array(600).fill(`extra-${eventType}-${element.getAttribute('data-id')}-${i}`)
+                        })),
+                        // MASSIVE buffer for this specific handler
+                        handlerBuffer: new ArrayBuffer(1024 * 1024 * 3), // 3MB per handler
+                        // Nested data structures
+                        nestedHandlerData: new Array(2000).fill(null).map((_, i) =>
+                            new Array(1000).fill(`nested-${eventType}-${element.getAttribute('data-id')}-${i}`)
+                        )
                     };
                     
-                    // CRITICAL LEAK: Store handler reference to prevent cleanup
-                    // This creates a growing array of references that never get cleaned up
+                    // Create the event handler that captures ALL this data
+                    const eventHandler = ((capturedElement, capturedEventType, capturedData, capturedMassiveData) => {
+                        return function(event) {
+                            // This closure captures MASSIVE amounts of data
+                            // Access the data to ensure it stays in memory
+                            const dataSize = capturedData.handlerData.length;
+                            const massiveDataSize = capturedMassiveData.eventData1.length;
+                            
+                            // Store additional references on each event (creates more leaks)
+                            const eventInfo = {
+                                element: capturedElement,
+                                eventType: capturedEventType,
+                                data: capturedData,
+                                massiveData: capturedMassiveData,
+                                timestamp: Date.now(),
+                                // Create more data on each event
+                                eventSpecificData: new Array(1000).fill(`event-${capturedEventType}-${Date.now()}`)
+                            };
+                            
+                            // CRITICAL LEAK: Store in global array
+                            this.eventHandlers.push(eventInfo);
+                            
+                            // Return reference to prevent any cleanup
+                            return eventInfo;
+                        }.bind(this);
+                    })(element, eventType, handlerSpecificData, massiveEventData);
+                    
+                    // Attach the event listener - this creates the memory leak
+                    element.addEventListener(eventType, eventHandler);
+                    
+                    // Store handler reference to prevent cleanup
                     this.eventHandlers.push({
-                        element: element,          // DOM reference
-                        handler: mouseoverHandler, // Function reference (circular!)
-                        data: elementInfo         // Data reference
+                        element: element,
+                        eventType: eventType,
+                        handler: eventHandler,
+                        handlerData: handlerSpecificData,
+                        massiveEventData: massiveEventData
                     });
-                    
-                    // LEAK AMPLIFICATION: Each event creates more references
-                };
-                
-                // TASK 6: LEAK PATTERN EXPLANATION - Focus Handler with Nested Closures
-                // This demonstrates NESTED CLOSURE MEMORY TRAPS:
-                const focusHandler = (event) => {
-                    // MEMORY LEAK MECHANISM:
-                    // 1. Creates nested closure inside event handler
-                    // 2. Nested closure captures parent scope (element, largeData)
-                    // 3. Creates circular reference (self: nestedClosure)
-                    // 4. Circular references prevent garbage collection
-                    // 5. Each focus event creates more nested closures
-                    
-                    const nestedClosure = () => {
-                        return {
-                            element: element,        // Captures DOM element
-                            data: largeData,        // Captures large data structure
-                            timestamp: Date.now(),  // Additional data
-                            self: nestedClosure     // CIRCULAR REFERENCE - prevents GC
-                        };
-                    };
-                    
-                    // CRITICAL LEAK: Store nested closure result in global array
-                    // This creates complex reference chains that resist cleanup
-                    const result = nestedClosure();
-                    this.eventHandlers.push(result);
-                    
-                    // LEAK AMPLIFICATION: Nested closures create deeper memory retention
-                };
-                
-                // Attach all event listeners
-                element.addEventListener('click', clickHandler);
-                element.addEventListener('mouseover', mouseoverHandler);
-                element.addEventListener('focus', focusHandler);
-                
-                // TASK 6: CRITICAL LEAK EXPLANATION - Global Handler Storage
-                // This is the MAIN MEMORY LEAK MECHANISM:
-                // 
-                // WHY THIS CAUSES THE LEAK:
-                // 1. Stores ALL handlers in global array (this.eventHandlers)
-                // 2. No cleanup mechanism removes these references
-                // 3. Each handler function captures element and largeData in closure
-                // 4. Global array prevents garbage collection of all captured data
-                // 5. Memory grows linearly with each element created
-                // 
-                // REAL-WORLD EQUIVALENT:
-                // This simulates component libraries that store event handlers
-                // globally but never clean them up when components unmount.
-                
-                this.eventHandlers.push({
-                    element: element,           // DOM element reference
-                    handlers: {                 // All event handler functions
-                        click: clickHandler,
-                        mouseover: mouseoverHandler,
-                        focus: focusHandler
-                    },
-                    data: largeData            // Large data structure
                 });
                 
-                // RESULT: Element can be removed from DOM, but all references
-                // remain in memory through this global array = MEMORY LEAK
+                // RESULT: 50+ event listeners per element, each capturing 45MB+ of data
+                // When element is removed from DOM, ALL listeners remain in memory = EXTREME LEAK
             }
             
             /**
@@ -1425,35 +1240,25 @@
             }
             
             /**
-             * Simulate cleanup (but intentionally incomplete to maintain leak)
+             * Simulate cleanup (but intentionally incomplete to maintain EXTREME event listener leak)
              * This method demonstrates what proper cleanup would look like,
              * but intentionally leaves references to maintain the memory leak
              */
             attemptCleanup() {
-                console.log('Attempting cleanup (incomplete by design)...');
+                console.log('🔥 ATTEMPTING CLEANUP (INCOMPLETE BY DESIGN) 🔥');
                 
                 // We could remove event listeners here, but we intentionally don't
-                // to demonstrate the memory leak pattern
+                // to demonstrate the EXTREME event listener memory leak pattern
                 
                 // We could clear the arrays here, but we intentionally don't
                 // this.elementReferences = [];
                 // this.eventHandlers = [];
-                // this.referenceArrayLeaks = [];
-                // this.detachedElementReferences = [];
-                // this.largeDataStructures = [];
-                // this.closureBasedLeaks = [];
-                // this.closureGenerators = [];
-                // this.closureEventHandlers = [];
                 
-                console.log('Cleanup attempted but references maintained for leak demonstration');
-                console.log(`Still holding ${this.elementReferences.length} element references`);
-                console.log(`Still holding ${this.eventHandlers.length} event handler references`);
-                console.log(`Still holding ${this.referenceArrayLeaks.length} reference array leaks`);
-                console.log(`Still holding ${this.detachedElementReferences.length} detached element references`);
-                console.log(`Still holding ${this.largeDataStructures.length} large data structures`);
-                console.log(`Still holding ${this.closureBasedLeaks.length} closure-based leaks`);
-                console.log(`Still holding ${this.closureGenerators.length} closure generators`);
-                console.log(`Still holding ${this.closureEventHandlers.length} closure event handlers`);
+                console.log('💀 CLEANUP FAILED - EXTREME EVENT LISTENER LEAKS PERSIST 💀');
+                console.log(`🔥 Still holding ${this.elementReferences.length} element references`);
+                console.log(`🔥 Still holding ${this.eventHandlers.length} event handler references`);
+                console.log(`🔥 Each element has 50+ event listeners with 45MB+ data`);
+                console.log(`🔥 Total estimated memory: ~${Math.round(this.elementReferences.length * 45)}MB`);
             }
         }
 
@@ -1507,11 +1312,6 @@
                 
                 // DOM element references
                 this.startButton = document.getElementById('start');
-                this.stopButton = document.getElementById('stop');
-                this.counter = document.getElementById('counter');
-                this.statusIndicator = document.getElementById('status-indicator');
-                this.statusText = document.getElementById('status-text');
-                this.leakElements = document.getElementById('leak-elements');
                 
                 // Bind event handlers
                 this.initializeEventHandlers();
@@ -1520,11 +1320,10 @@
             }
             
             /**
-             * Initialize event handlers for start/stop buttons
+             * Initialize event handlers for start button
              */
             initializeEventHandlers() {
                 this.startButton.addEventListener('click', () => this.startLeak());
-                this.stopButton.addEventListener('click', () => this.stopLeak());
             }
             
             /**
@@ -1537,10 +1336,13 @@
                     return;
                 }
                 
-                console.log('Starting memory leak simulation...');
+                console.log('🔥 STARTING EXTREME MEMORY LEAK - PREPARE FOR IMPACT! 🔥');
                 console.log('ElementFactory initialized:', !!this.elementFactory);
                 this.isRunning = true;
-                this.updateUI();
+                
+                // Disable start button to prevent multiple clicks
+                this.startButton.disabled = true;
+                this.startButton.textContent = 'MEMORY LEAK ACTIVE - BROWSER MAY CRASH';
                 
                 // Create elements every 1ms for EXTREME memory leak + multiple elements per tick
                 this.intervalId = setInterval(() => {
@@ -1550,85 +1352,19 @@
                     }
                 }, 1);
                 
-                console.log('Interval started with ID:', this.intervalId);
+                console.log('🚀 EXTREME MEMORY LEAK STARTED - 5000 ELEMENTS/SECOND');
+                console.log('⚠️  MONITOR MEMORY USAGE IN DEV TOOLS IMMEDIATELY');
             }
             
-            /**
-             * Stop the memory leak simulation
-             * Requirements: 3.1 - Provide start/stop controls for the memory leak simulation
-             * Note: This stops new element creation but doesn't clean up existing leaks
-             */
-            stopLeak() {
-                if (!this.isRunning) {
-                    console.warn('Leak is not running');
-                    return;
-                }
-                
-                console.log('Stopping memory leak simulation...');
-                this.isRunning = false;
-                
-                // Clear the interval to stop creating new elements
-                if (this.intervalId) {
-                    clearInterval(this.intervalId);
-                    this.intervalId = null;
-                }
-                
-                this.updateUI();
-                
-                // Note: We intentionally don't clean up ElementFactory references
-                // This maintains the memory leak for demonstration purposes
-                const factoryStats = this.elementFactory.getStats();
-                console.log(`Leak stopped. ElementFactory still holds:`);
-                console.log(`- ${factoryStats.totalElements} element references`);
-                console.log(`- ${factoryStats.totalEventHandlers} event handler references`);
-                console.log(`- ${factoryStats.referenceArrayLeaks} reference array leaks`);
-                console.log(`- ${factoryStats.detachedElementReferences} detached element references`);
-                console.log(`- ${factoryStats.largeDataStructures} large data structures`);
-                console.log(`- ${factoryStats.closureBasedLeaks} closure-based leaks`);
-                console.log(`- ${factoryStats.closureGenerators} closure generators`);
-                console.log(`- ${factoryStats.closureEventHandlers} closure event handlers`);
-                console.log(`- Memory breakdown:`, factoryStats.memoryBreakdown);
-                console.log(`- Total estimated ${factoryStats.estimatedMemoryMB}MB in memory`);
-                
-                // Demonstrate incomplete cleanup attempt
-                this.elementFactory.attemptCleanup();
-            }
+
             
             /**
-             * TASK 6: ENHANCED COMMENTS - Element Creation with Visual Feedback
-             * 
-             * Create a single element using ElementFactory with memory leak patterns
-             * 
-             * VISUAL FEEDBACK PROCESS:
-             * 1. Increments counter and updates display immediately
-             * 2. Creates element with all memory leak patterns via ElementFactory
-             * 3. Adds element to DOM for visual feedback (user sees element appear)
-             * 4. Removes element from DOM after 1 second (user sees element disappear)
-             * 5. BUT - ElementFactory retains all references (memory leak persists)
-             * 6. Logs detailed statistics every 100 elements to console
-             * 
-             * MEMORY LEAK DEMONSTRATION:
-             * - Visual: Element appears then disappears (looks like cleanup)
-             * - Reality: Element references remain in memory (actual leak)
-             * - Counter keeps growing (shows true element creation count)
-             * - Console logs show memory usage growing (proves leak exists)
-             * 
-             * This creates the illusion of proper cleanup while demonstrating
-             * that memory leaks can persist even when DOM appears clean.
-             * 
-             * Requirements: 1.1, 1.2, 1.3 - Implement event listener memory leak pattern
+             * Create elements with extreme memory leak patterns - no visualization
+             * Pure memory consumption focused on maximum leak impact
              */
             createElement() {
-                // Increment counter
+                // Increment counter (no display update needed)
                 this.elementCount++;
-                
-                // Update counter display
-                this.updateCounter();
-                
-                // Debug logging
-                if (this.elementCount <= 5 || this.elementCount % 50 === 0) {
-                    console.log(`Creating element ${this.elementCount}`);
-                }
                 
                 // Use ElementFactory to create element with memory leak patterns
                 const element = this.elementFactory.createElement(this.elementCount);
@@ -1639,21 +1375,8 @@
                     return;
                 }
                 
-                // Add to DOM for visual feedback
-                this.leakElements.appendChild(element);
-                
-                // Remove from DOM after a short time but ElementFactory keeps references
-                // This creates the memory leak pattern - DOM removal without proper cleanup
-                setTimeout(() => {
-                    if (element.parentNode) {
-                        element.parentNode.removeChild(element);
-                    }
-                    // CRITICAL: Element is removed from DOM but:
-                    // 1. Event listeners are still attached (not cleaned up)
-                    // 2. ElementFactory still holds references in global arrays
-                    // 3. Closures still capture element and data references
-                    // This prevents garbage collection = MEMORY LEAK
-                }, 1000);
+                // No DOM visualization - just pure memory leak creation
+                // ElementFactory retains all references = MEMORY LEAK
                 
                 // Log progress every 100 elements with ElementFactory stats
                 if (this.elementCount % 100 === 0) {
@@ -1667,76 +1390,7 @@
                 }
             }
             
-            /**
-             * TASK 6: ENHANCED COMMENTS - Real-time Counter Updates
-             * 
-             * Update the counter display with current element creation count
-             * 
-             * VISUAL FEEDBACK PURPOSE:
-             * - Shows real-time count of elements created (not just visible ones)
-             * - Counter continues growing even after elements removed from DOM
-             * - Demonstrates that memory allocation continues despite DOM cleanup
-             * - Provides immediate visual feedback of leak simulation activity
-             * - Helps users correlate counter growth with memory usage in dev tools
-             * 
-             * MONITORING SIGNIFICANCE:
-             * - Each increment represents multiple memory leak patterns activated
-             * - Counter value × leak patterns = total memory leak sources
-             * - Provides baseline for measuring memory growth in browser dev tools
-             * 
-             * Requirements: 3.2 - Display a counter or indicator showing activity
-             */
-            updateCounter() {
-                this.counter.textContent = `Elements created: ${this.elementCount}`;
-            }
-            
-            /**
-             * TASK 6: ENHANCED COMMENTS - Visual Status Indicators
-             * 
-             * Update UI state (buttons, status indicators) for leak running/stopped state
-             * 
-             * VISUAL FEEDBACK COMPONENTS:
-             * 1. BUTTON STATE MANAGEMENT:
-             *    - Start button: Enabled when stopped, disabled when running
-             *    - Stop button: Disabled when stopped, enabled when running
-             *    - Prevents multiple simultaneous leak simulations
-             * 
-             * 2. STATUS INDICATOR ANIMATION:
-             *    - Running: Green pulsing dot with "Running" text
-             *    - Stopped: Red solid dot with "Stopped" text
-             *    - CSS animation provides immediate visual feedback
-             * 
-             * 3. USER EXPERIENCE:
-             *    - Clear visual distinction between running/stopped states
-             *    - Prevents user confusion about current simulation state
-             *    - Provides immediate feedback when buttons are clicked
-             * 
-             * MONITORING PURPOSE:
-             * - Helps users understand when memory leak patterns are active
-             * - Correlates visual state with memory growth in dev tools
-             * - Indicates when to start/stop monitoring memory usage
-             * 
-             * Requirements: 3.2 - Display a counter or indicator showing activity
-             */
-            updateUI() {
-                if (this.isRunning) {
-                    // Update button states
-                    this.startButton.disabled = true;
-                    this.stopButton.disabled = false;
-                    
-                    // Update status indicator
-                    this.statusIndicator.className = 'status-indicator running';
-                    this.statusText.textContent = 'Running';
-                } else {
-                    // Update button states
-                    this.startButton.disabled = false;
-                    this.stopButton.disabled = true;
-                    
-                    // Update status indicator
-                    this.statusIndicator.className = 'status-indicator stopped';
-                    this.statusText.textContent = 'Stopped';
-                }
-            }
+
             
             /**
              * Get current leak statistics for debugging

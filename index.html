@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Leak Reproduction - Radix UI Issue #3202</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #dc2626;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .warning {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px;
+            color: #991b1b;
+        }
+
+        .warning h3 {
+            color: #dc2626;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .warning ul {
+            margin-left: 20px;
+        }
+
+        .warning li {
+            margin-bottom: 4px;
+        }
+
+        #controls {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            background: #fafafa;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #start {
+            background: #16a34a;
+            color: white;
+        }
+
+        #start:hover:not(:disabled) {
+            background: #15803d;
+        }
+
+        #stop {
+            background: #dc2626;
+            color: white;
+        }
+
+        #stop:hover:not(:disabled) {
+            background: #b91c1c;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #counter {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            min-width: 200px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6b7280;
+        }
+
+        .status-indicator.running {
+            background: #16a34a;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.stopped {
+            background: #dc2626;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #leak-area {
+            padding: 20px;
+            min-height: 200px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .leak-area-header {
+            margin-bottom: 15px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .leak-elements {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .leak-element {
+            width: 100px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .instructions {
+            padding: 20px;
+            background: #f0f9ff;
+            border-top: 1px solid #e5e5e5;
+            color: #0c4a6e;
+        }
+
+        .instructions h3 {
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div class="header">
+            <h1>Memory Leak Reproduction</h1>
+            <p>Reproducing Radix UI Issue #3202 with vanilla JavaScript</p>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ WARNING - Potential Browser Impact</h3>
+            <ul>
+                <li><strong>This reproduction can cause significant memory usage</strong></li>
+                <li>May lead to browser slowdown or crashes if left running</li>
+                <li>Monitor memory usage in browser dev tools (F12 → Performance/Memory tab)</li>
+                <li>Close this tab if your browser becomes unresponsive</li>
+                <li>Save any important work in other tabs before proceeding</li>
+            </ul>
+        </div>
+
+        <div id="controls">
+            <div class="control-group">
+                <button id="start">Start Memory Leak</button>
+                <button id="stop" disabled>Stop Leak</button>
+                <div class="status">
+                    <div class="status-indicator stopped" id="status-indicator"></div>
+                    <span id="status-text">Stopped</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <div id="counter">Elements created: 0</div>
+            </div>
+        </div>
+
+        <div id="leak-area">
+            <div class="leak-area-header">
+                Leak Visualization Area
+            </div>
+            <div class="leak-elements" id="leak-elements">
+                <!-- Dynamic elements will be created here -->
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Use:</h3>
+            <ol>
+                <li>Open browser dev tools (F12) and go to the Memory or Performance tab</li>
+                <li>Click "Start Memory Leak" to begin the reproduction</li>
+                <li>Watch the counter increase and observe memory growth in dev tools</li>
+                <li>Click "Stop Leak" to halt new element creation (existing leaks will persist)</li>
+                <li>Use dev tools to analyze the memory leak patterns</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript implementation will be added in subsequent tasks
+        console.log('Memory leak reproduction page loaded');
+        console.log('Ready for leak controller implementation');
+    </script>
+</body>
+</html>
